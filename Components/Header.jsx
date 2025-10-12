@@ -111,7 +111,7 @@ function Header() {
         <div className="logo">
           <Link to="/">
             <img
-              src="src/assets/kaaflogo.png"
+              src="/kaaflogo.png"
               alt="Kaaf Logo"
               className="nav-logo"
             />

@@ -10,7 +10,7 @@ function Footer() {
         
         {/* Logo */}
         <div className="mb-2 mb-md-0 logo">
-          <img src="src/assets/kaaflogo.png" alt="kaaf logo" />
+          <img src="/kaaflogo.png" alt="kaaf logo" />
         </div>
 
         {/* Contact Info */}
