@@ -36,7 +36,7 @@ function Footer() {
 
       {/* Thin Copyright */}
       <div className="text-center mt-1 fs-6" style={{ fontSize: "0.75rem" }}>
-        &copy; {new Date().getFullYear()} Bee Tennis Studio. All Rights Reserved.
+        &copy; {new Date().getFullYear()} KAAF. All Rights Reserved.
       </div>
     </footer>
   );
