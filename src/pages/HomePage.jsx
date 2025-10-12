@@ -76,11 +76,11 @@ useEffect(() => {
   {/* Products Section */}
 {/* Products Section */}
 <section className="py-5 bg-light">
-  <div className="container">
+  <div className="px-1 px-md-5">
     <h2 className="text-center mb-4">Our Products</h2>
     <div className="row g-3">
       {products.map((product) => (
-        <div key={product.id} className="col-6 col-md-4 col-lg-4">
+        <div key={product.id} className="col-6 col-md-4 col-lg-3">
           <div className="card h-100 shadow-sm">
             <div className="position-relative">
               <img
