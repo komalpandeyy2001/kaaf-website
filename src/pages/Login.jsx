@@ -71,7 +71,7 @@ const Login = () => {
       <div className="auth-form">
         <div className="auth-header">
           <h2>Welcome Back</h2>
-          <p>Sign in to your BeeTennis account</p>
+          <p>Sign in to your Kaaf account</p>
         </div>
         
         {error && <div className="error-message">{error}</div>}

@@ -49,7 +49,7 @@ button {
   justify-content: center;
   font-weight: 500;
   font-family: inherit;
-  background-color: #FFD700;
+  background-color: #F9C300;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -84,7 +84,7 @@ button:focus-visible {
   display: block;
   width: 100%;
   height: 2px;
-  background-color: #FFD700; /* yellow underline */
+  background-color: #F9C300; /* yellow underline */
   margin-top: 2px;
 }
 

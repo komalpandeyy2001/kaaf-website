@@ -1,1 +1,3 @@
-- [ ] Update border width for the main container in Career.jsx: top and left 2px, right and bottom 4px
+- [x] Remove the hamburger menu button from Header.jsx
+- [x] Remove the entire nav-links <ul> block from Header.jsx
+- [x] Modify header-actions div: remove desktop-only class, remove inline display style, remove Book a class button, keep only user profile/login section

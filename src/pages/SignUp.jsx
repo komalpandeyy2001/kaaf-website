@@ -114,7 +114,7 @@ const SignUp = () => {
       <div className="auth-form">
         <div className="auth-header">
           <h2>Create Account</h2>
-          <p>Join BeeTennis today</p>
+          <p>Join Kaaf today</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}

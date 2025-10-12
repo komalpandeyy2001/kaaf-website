@@ -1,7 +1,7 @@
 /* Reset and base styles */
 :root {
   /* Primary Colors */
-  --primary-yellow: #FFD700;
+  --primary-yellow: #F9C300;
   --primary-blue: #667eea;
   --primary-red: #ff6b6b;
   --primary-green: #22c55e;
@@ -353,8 +353,8 @@ body {
 
 /* Common Button Styles */
 .btn-custom-yellow {
-  background-color: #FFD700;
-  color: #000000;
+  background-color: #F9C300;
+  color: white;
   border: none;
   padding: 0.50rem 1rem;
   font-size: 1rem;
@@ -367,7 +367,7 @@ body {
   text-align: center;
 }
 .session-button {
-    background-color: #FFD700;
+    background-color: #F9C300;
     color: #000000;
     border: none;
     padding: 0.50rem 1rem;
@@ -492,10 +492,7 @@ body {
 
 /* *********************************************************MEDIA QUERIES ******************************************************* */
 @media (max-width: 1200px) {
-  .logo img {
-    height: 60px;
-    max-width: 150px;
-  }
+
 
   .nav-links {
     font-size: 18px;
@@ -504,10 +501,7 @@ body {
 }
 
 @media (max-width: 991px) {
-  .logo img {
-    height: 60px;
-    max-width: 150px;
-  }
+
 
   .nav-links {
     font-size: 14px;
@@ -631,14 +625,14 @@ body {
 }
 
 .card-header.bg-yellow .nav-tabs .nav-link.active {
-  background-color: #FFD700;
+  background-color: #F9C300;
   color: #000000;
   border: none;
 }
 
 @media (max-width: 400px) {
   .session-button {
-    background-color: #FFD700;
+    background-color: #F9C300;
     color: #000000;
     border: none;
     padding: 0.50rem 1rem;

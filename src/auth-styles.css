@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FFD700;
+  background: #F9C300;
   padding: 20px;
 }
 
@@ -102,7 +102,7 @@
 }
 
 .auth-button:hover:not(:disabled) {
-  background: #FFD700;
+  background: #F9C300;
 }
 
 .auth-button:disabled {
