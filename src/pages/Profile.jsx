@@ -9,13 +9,13 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('personal');
   const [userData, setUserData] = useState(() => {
     const storedUser = localStorage.getItem('userInfo');
-return storedUser ? JSON.parse(storedUser) : {
-  displayName: '',   
-  email: '',
-  phone: '',
-  address: '',
-  bio: ''
-};
+    return storedUser ? JSON.parse(storedUser) : {
+      displayName: '',
+      email: '',
+      phone: '',
+      address: '',
+      bio: ''
+    };
 
   });
 
@@ -92,54 +92,54 @@ return storedUser ? JSON.parse(storedUser) : {
   };
 
   useEffect(() => {
-  const fetchUserData = async () => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const userDataFromDB = userDocSnap.data();
+          setUserData(userDataFromDB);
+          setFormData(userDataFromDB);
+
+          // ✅ keep localStorage in sync
+          localStorage.setItem("userInfo", JSON.stringify(userDataFromDB));
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleSavePersonalInfo = async (e) => {
+    e.preventDefault();
     try {
       const user = auth.currentUser;
-      if (!user) return;
-
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-
-      if (userDocSnap.exists()) {
-        const userDataFromDB = userDocSnap.data();
-        setUserData(userDataFromDB);
-        setFormData(userDataFromDB);
-
-        // ✅ keep localStorage in sync
-        localStorage.setItem("userInfo", JSON.stringify(userDataFromDB));
+      if (!user) {
+        toast.error("No authenticated user found!");
+        return;
       }
+
+      const updatedUserData = { ...formData };
+
+      // ✅ Save to Firestore (merge so we don’t overwrite existing fields)
+      await setDoc(doc(db, "users", user.uid), updatedUserData, { merge: true });
+
+      // ✅ Update local state + localStorage
+      setUserData(updatedUserData);
+      localStorage.setItem("userInfo", JSON.stringify(updatedUserData));
+
+      toast.success("Personal information updated successfully!");
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error saving personal info:", error);
+      toast.error("Failed to save personal information!");
     }
   };
-
-  fetchUserData();
-}, []);
-
-const handleSavePersonalInfo = async (e) => {
-  e.preventDefault();
-  try {
-    const user = auth.currentUser;
-    if (!user) {
-      toast.error("No authenticated user found!");
-      return;
-    }
-
-    const updatedUserData = { ...formData };
-
-    // ✅ Save to Firestore (merge so we don’t overwrite existing fields)
-    await setDoc(doc(db, "users", user.uid), updatedUserData, { merge: true });
-
-    // ✅ Update local state + localStorage
-    setUserData(updatedUserData);
-    localStorage.setItem("userInfo", JSON.stringify(updatedUserData));
-
-    toast.success("Personal information updated successfully!");
-  } catch (error) {
-    console.error("Error saving personal info:", error);
-    toast.error("Failed to save personal information!");
-  }
-};
 
 
   const handleChangePassword = async (e) => {
@@ -215,18 +215,18 @@ const handleSavePersonalInfo = async (e) => {
       <h2 className="mb-4">Personal Information</h2>
       <form onSubmit={handleSavePersonalInfo} className="row g-3">
 
-       <div className="col-md-6">
-  <label htmlFor="displayName" className="form-label">Full Name</label>
-  <input
-    type="text"
-    className="form-control"
-    id="displayName"
-    name="displayName" 
-    value={formData.displayName} 
-    onChange={handleInputChange}
-    placeholder="Enter your full name"
-  />
-</div>
+        <div className="col-md-6">
+          <label htmlFor="displayName" className="form-label">Full Name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="displayName"
+            name="displayName"
+            value={formData.displayName}
+            onChange={handleInputChange}
+            placeholder="Enter your full name"
+          />
+        </div>
         <div className="col-md-6">
           <label htmlFor="email" className="form-label">Email Address</label>
           <input
@@ -241,24 +241,24 @@ const handleSavePersonalInfo = async (e) => {
           />
         </div>
 
-<div className="col-md-6">
-  <label htmlFor="phone" className="form-label">Phone Number</label>
-  <input
-    type="tel"
-    className="form-control"
-    id="phone"
-    name="phone"
-    value={formData.phone}
-    onChange={(e) => {
-      // keep only digits
-      const digitsOnly = e.target.value.replace(/\D/g, "");
-      setFormData({ ...formData, phone: digitsOnly });
-    }}
-    placeholder="Enter your phone number"
-    inputMode="numeric"   // shows numeric keypad on mobile
-    pattern="[0-9]*"      // ensures only digits
-  />
-</div>
+        <div className="col-md-6">
+          <label htmlFor="phone" className="form-label">Phone Number</label>
+          <input
+            type="tel"
+            className="form-control"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={(e) => {
+              // keep only digits
+              const digitsOnly = e.target.value.replace(/\D/g, "");
+              setFormData({ ...formData, phone: digitsOnly });
+            }}
+            placeholder="Enter your phone number"
+            inputMode="numeric"   // shows numeric keypad on mobile
+            pattern="[0-9]*"      // ensures only digits
+          />
+        </div>
 
 
 
@@ -276,18 +276,7 @@ const handleSavePersonalInfo = async (e) => {
           />
         </div>
 
-        <div className="col-12">
-          <label htmlFor="bio" className="form-label">Bio</label>
-          <textarea
-            className="form-control"
-            id="bio"
-            name="bio"
-            value={formData.bio}
-            onChange={handleInputChange}
-            placeholder="Tell us about yourself"
-            rows="4"
-          />
-        </div>
+
 
         <div className="col-12">
           <button type="submit" className="btn-custom-yellow">
@@ -403,10 +392,11 @@ const handleSavePersonalInfo = async (e) => {
   };
 
   return (
-    <div className="container-fluid py-4 ">
+    <div className="container-fluid py-5 ">
+      <div className="mt-5"></div>
       <div className="row ">
         <div className="col-12">
-          <h1 className="text-center mb-4">User Profile</h1>
+          <h3 className="text-center mb-4">User Profile</h3>
         </div>
       </div>
 
@@ -429,9 +419,9 @@ const handleSavePersonalInfo = async (e) => {
               <button className="btn-custom-yellow  mb-3">
                 Change Image
               </button>
-<h5 className="card-title ">{userData.displayName}</h5>  
+              <h5 className="card-title ">{userData.displayName}</h5>
               <p className="card-text text-muted">{userData.email}</p>
-       
+
 
               {/* Registration Stats */}
               <div className="mt-4 pt-3 border-top">
@@ -468,30 +458,30 @@ const handleSavePersonalInfo = async (e) => {
                     Personal Info
                   </button>
                 </li>
-                <li className="nav-item">
+                {/* <li className="nav-item">
                   <button
                     className={`nav-link ${activeTab === 'password' ? 'active' : ''}`}
                     onClick={() => setActiveTab('password')}
                   >
                     Password
                   </button>
-                </li>
-                <li className="nav-item">
+                </li> */}
+                {/* <li className="nav-item">
                   <button
                     className={`nav-link ${activeTab === 'orders' ? 'active' : ''}`}
                     onClick={() => setActiveTab('orders')}
                   >
                     Orders
                   </button>
-                </li>
-                <li className="nav-item">
+                </li> */}
+                {/* <li className="nav-item">
                   <button
                     className={`nav-link ${activeTab === 'registrations' ? 'active' : ''}`}
                     onClick={() => setActiveTab('registrations')}
                   >
                     Registrations
                   </button>
-                </li>
+                </li> */}
               </ul>
             </div>
             <div className="card-body">

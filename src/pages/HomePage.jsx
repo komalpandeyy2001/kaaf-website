@@ -76,9 +76,9 @@ useEffect(() => {
   {/* Products Section */}
 {/* Products Section */}
 <section className="py-5 bg-light">
-  <div className="px-1 px-md-5">
+  <div className="px-3 px-md-5">
     <h2 className="text-center mb-4">Our Products</h2>
-    <div className="row g-3">
+    <div className="row g-2">
       {products.map((product) => (
         <div key={product.id} className="col-6 col-md-4 col-lg-3">
           <div className="card h-100 shadow-sm">
@@ -101,14 +101,14 @@ useEffect(() => {
               </button>
             </div>
             <div className="card-body d-flex flex-column">
-              <h5 className="card-title text-truncate">{product.name}</h5>
+              <h5 className="card-title text-truncate ">{product.name}</h5>
               <p className="card-text text-muted mb-2">₹{product.price}</p>
               <div className="d-flex gap-1 mt-auto">
                 <button
                   onClick={() => handleBuyNow(product)}
                   className="btn btn-warning btn-sm flex-fill text-white"
                 >
-                  Buy <span className='d-none d-lg-block'>Now</span>
+                  Buy Now
                 </button>
                 <button
                   onClick={() => handleAddToCart(product)}

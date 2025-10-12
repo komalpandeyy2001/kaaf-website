@@ -520,7 +520,7 @@ body {
 @media (max-width: 767px) {
   .nav {
     flex-direction: row;
-    justify-content: space-between;
+  
     align-items: center;
     padding: 1rem;
   }
@@ -806,6 +806,7 @@ body {
   }
 }
 @media (max-width: 430px) {
+  
   .tennis-wrapper {
     padding: 8px 2px;
   }

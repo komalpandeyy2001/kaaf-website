@@ -126,42 +126,13 @@ function Header() {
 
 
           {user ? (
-            /* Profile Dropdown - When logged in */
-            <div className="relative" ref={profileDropdownRef}>
-              {/* Toggle Button */}
-              <button
-                className="profile-button"
-                onClick={(e) => {
-                  e.stopPropagation(); // stop bubbling to document
-                  setIsProfileDropdownOpen((prev) => !prev);
-                }}
-                aria-label="Profile menu"
-              >
-                <span className="username-display">
-                  {user.displayName || user.name || user.email || 'User'}
-                </span>
-                <FaUserCircle size={24} />
-                <IoMdArrowDropdown
-                  size={16}
-                  className={`dropdown-arrow ${isProfileDropdownOpen ? 'open' : ''}`}
-                />
-              </button>
-
-              {/* Dropdown Menu */}
-              {isProfileDropdownOpen && (
-                <div className="profile-dropdown absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-50">
-                  <Link to="/profile" onClick={() => setIsProfileDropdownOpen(false)}>
-                    Profile
-                  </Link>
-                  <Link to="/registrations" onClick={() => setIsProfileDropdownOpen(false)}>
-                    Registrations
-                  </Link>
-                  <button onClick={handleLogout} className="logout-button">
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+            /* Profile Button - When logged in */
+            <Link to="/account" className="profile-button" aria-label="Account">
+              <span className="username-display">
+                {user.displayName || user.name || user.email || 'User'}
+              </span>
+              <FaUserCircle size={24} />
+            </Link>
 
           ) : (
             /* Login Button - When not logged in */

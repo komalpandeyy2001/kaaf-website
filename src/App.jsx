@@ -20,6 +20,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import Orders from './pages/Orders'
 import RegistrationsDashboard from './pages/RegistrationsDashboard'
 import Profile from './pages/Profile'
+import Account from './pages/Account'
+import Terms from './pages/Terms'
 import PaymentSuccess from './pages/PaymentSuccess'
 import './auth-styles.css'
 import Career from './pages/Career'
@@ -50,6 +52,8 @@ function App() {
           <Route path="/orders/new" element={<Orders />} />
         <Route path="/registrations" element={<RegistrationsDashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
       <ToastContainer />

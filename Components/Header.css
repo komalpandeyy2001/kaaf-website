@@ -250,6 +250,10 @@
     padding: 0.25rem;
   }
 
+  .username-display {
+    display: none;
+  }
+
   .cart-icon {
     margin-left: 0.5rem;
   }
@@ -274,4 +278,9 @@
     right: -20px;
     min-width: 160px;
   }
+
+      .btn-custom-yellow {
+        font-size: 0.6rem;
+        padding: 0.4rem 0.6rem;
+    }
 }
