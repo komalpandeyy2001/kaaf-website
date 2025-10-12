@@ -33,8 +33,8 @@ const validateAndFixImageUrl = (imageUrl) => {
 
 // Test with the actual URLs from console
 const testUrls = [
-  "https://firebasestorage.googleapis.com/v0/b/bee-tennis-4626f.firebasestorage.app/o/images%2FRectangle%205.png0.95026716722585.jpg?alt=media&token=7895a5a0-65cd-46a5-a598-fb672b158513",
-  "https://firebasestorage.googleapis.com/v0/b/bee-tennis-4626f.firebasestorage.app/o/images%2FRectangle%205.png0.20106260912345197.jpg?alt=media&token=b585db34-88b7-4eba-832c-43554b54d6cd"
+  "https://firebasestorage.googleapis.com/v0/b/kaaf-web.firebasestorage.app/o/images%2FRectangle%205.png0.95026716722585.jpg?alt=media&token=7895a5a0-65cd-46a5-a598-fb672b158513",
+  "https://firebasestorage.googleapis.com/v0/b/kaaf-web.firebasestorage.app/o/images%2FRectangle%205.png0.20106260912345197.jpg?alt=media&token=b585db34-88b7-4eba-832c-43554b54d6cd"
 ];
 
 testUrls.forEach(url => {

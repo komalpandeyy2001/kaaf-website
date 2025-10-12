@@ -16,7 +16,7 @@ export const createPaymentIntent = async (amount, registrationId, registrationTy
     // Determine the correct endpoint based on environment
     const isDevelopment = import.meta.env.MODE === 'development';
     const endpoint =
-      'https://us-central1-bee-tennis-4626f.cloudfunctions.net/createPaymentIntent'; // Production
+      'https://us-central1-kaaf-web.cloudfunctions.net/createPaymentIntent'; // Production
 
     console.log('Creating payment intent with endpoint:', endpoint);
 

@@ -43,10 +43,10 @@ After deploying/running functions, test if they're accessible:
 
 ```bash
 # For emulator (development)
-curl http://localhost:5001/bee-tennis-4626f/us-central1/healthCheck
+curl http://localhost:5001/kaaf-web/us-central1/healthCheck
 
 # For production
-curl https://us-central1-bee-tennis-4626f.cloudfunctions.net/healthCheck
+curl https://us-central1-kaaf-web.cloudfunctions.net/healthCheck
 ```
 
 ### 4. Test Payment Intent Creation
@@ -55,7 +55,7 @@ You can test the payment intent creation directly:
 
 ```bash
 # Test with sample data
-curl -X POST http://localhost:5001/bee-tennis-4626f/us-central1/createPaymentIntent \
+curl -X POST http://localhost:5001/kaaf-web/us-central1/createPaymentIntent \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 1000,

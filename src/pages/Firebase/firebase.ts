@@ -7,13 +7,13 @@ import { getAnalytics } from "firebase/analytics";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCpKLbmDSxT69wqZyKczDjE7OM24O7erR4",
-  authDomain: "bee-tennis-4626f.firebaseapp.com",
-  projectId: "bee-tennis-4626f",
-  storageBucket: "bee-tennis-4626f.firebasestorage.app",
-  messagingSenderId: "932326165317",
-  appId: "1:932326165317:web:0ecad7dcea3753bc394c2c",
-  measurementId: "G-WC5FKHWFHL"
+  apiKey: "AIzaSyAKt2C42bijNPPShb96I3jH-h9Fcywoegg",
+  authDomain: "kaaf-web.firebaseapp.com",
+  projectId: "kaaf-web",
+  storageBucket: "kaaf-web.firebasestorage.app",
+  messagingSenderId: "67156408999",
+  appId: "1:67156408999:web:6cd99e6be8c19496ae3982",
+  measurementId: "G-6ZSX04REBS"
 };
 
 
