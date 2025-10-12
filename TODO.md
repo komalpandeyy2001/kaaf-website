@@ -1,0 +1,1 @@
+- [ ] Update border width for the main container in Career.jsx: top and left 2px, right and bottom 4px

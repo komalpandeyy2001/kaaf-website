@@ -1,0 +1,8 @@
+# Check current Firebase functions config
+firebase functions:config:get
+
+# Set Stripe secret key (replace YOUR_STRIPE_SECRET_KEY with your actual secret key without 'Bearer ' prefix)
+firebase functions:config:set stripe.secret="sk_test_51Q638VL06v98rXHkUSxEJiRGAISmJ7uJWU5eVABBAKpN2ZlFFt3hL6NMCaztqWnsh1LA3s4fS5Zhj0CIXH447TQC00XNpkeD0i"
+
+# Deploy Firebase functions after setting config
+firebase deploy --only functions
