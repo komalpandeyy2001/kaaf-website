@@ -11,8 +11,8 @@ const Account = () => {
   return (
     <div className="container-fluid py-5 bg-light">
          <div className="mt-5"></div>
-      <div className="row justify-content-center">
-        <div className="col-md-6">
+      <div className="justify-content-center">
+        <div className="">
           <div className="card shadow">
             <div className="card-header bg-yellow text-center">
               <h2 className="mb-0 text-dark">My Account</h2>

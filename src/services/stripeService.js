@@ -97,3 +97,75 @@ export const updateRegistrationPaymentStatus = async (registrationId, registrati
     throw error;
   }
 };
+
+// New functions for product purchases
+export const createProductPaymentIntent = async (amount, cartItems) => {
+  try {
+    const endpoint = 'https://us-central1-kaaf-web.cloudfunctions.net/createPaymentIntent';
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      mode: 'cors',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount: Math.round(amount * 100), // Convert to cents
+        registrationType: 'product', // Indicate product purchase
+        metadata: { cartItems: JSON.stringify(cartItems) } // Pass cart for backend logging
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        errorData = { error: `Server error: ${response.status} ${response.statusText}` };
+      }
+      throw new Error(errorData.error || 'Failed to create payment intent');
+    }
+
+    const data = await response.json();
+
+    if (!data.clientSecret) {
+      throw new Error('Invalid response: missing client secret');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error creating product payment intent:', error);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout: Payment server is not responding. Please try again later.');
+    }
+    if (error.message.includes('CORS') || error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      throw new Error('Network error: Unable to connect to payment server. Please check your internet connection and try again.');
+    }
+    throw new Error(`Payment setup failed: ${error.message}`);
+  }
+};
+
+export const confirmProductPayment = async (clientSecret, paymentMethod) => {
+  try {
+    const stripe = await getStripe();
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: paymentMethod
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return paymentIntent;
+  } catch (error) {
+    console.error('Error confirming product payment:', error);
+    throw error;
+  }
+};

@@ -25,11 +25,10 @@ const userData = {
   uid: userCredential.user.uid,
   email: userCredential.user.email,
   displayName: name,
-  password: pass,
   createdAt: serverTimestamp(), // Firestore timestamp
   updatedAt: serverTimestamp(), // Firestore timestamp
   emailVerified: false,
-  role: 'user',
+
   isActive: true
 };
     
