@@ -1,32 +1,60 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+// Load environment variables
+require("dotenv").config();
 
-const {setGlobalOptions} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/https");
-const logger = require("firebase-functions/logger");
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const Razorpay = require("razorpay");
+const cors = require("cors")({ origin: true });
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+// Initialize Firebase Admin SDK
+admin.initializeApp();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// Get Razorpay keys from environment variables
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+if (!razorpayKeyId || !razorpayKeySecret) {
+  throw new Error("Razorpay keys are not set in environment variables!");
+}
+
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+  key_id: razorpayKeyId,
+  key_secret: razorpayKeySecret,
+});
+
+// Create Razorpay order
+exports.createRazorpayOrder = functions.https.onRequest((req, res) => {
+    cors(req, res, async () => {
+      try {
+        if (req.method !== "POST") {
+          return res.status(405).send({ error: "Only POST requests are allowed" });
+        }
+
+        const { amount, currency, receipt, notes } = req.body;
+
+        if (!amount || !currency) {
+          return res.status(400).send({ error: "Amount and currency are required" });
+        }
+
+        const order = await razorpay.orders.create({
+          amount: amount * 100, // convert to smallest currency unit
+          currency,
+          receipt,
+          payment_capture: 1,
+          notes: notes || {},
+        });
+
+        res.status(200).send({
+          orderId: order.id,
+          amount: order.amount,
+          currency: order.currency,
+          key: razorpay.key_id,
+          notes: order.notes,
+        });
+      } catch (err) {
+        console.error("Razorpay order creation error:", err);
+        res.status(500).send({ error: err.message });
+      }
+    });
+  });

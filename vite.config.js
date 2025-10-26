@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001/kaaf-web/us-central1',
+        target: 'http://localhost:5001/kaaf-3f07d/asia-south1',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

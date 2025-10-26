@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getUserData } from '../utils/userData'
 import { getDocumentData, getCollectionData } from './Firebase/CloudFirestore/GetData'
-import { updateDocument } from './Firebase/CloudFirestore/SetData'
-import { addDocument } from './Firebase/CloudFirestore/SetData' // Assuming addDocument exists; if not, use updateDocument or create
+import { updateDocument, addDocument } from './Firebase/CloudFirestore/SetData'
 import { incrementNumber } from './Firebase/CloudFirestore/UpdateData'
 import { toast } from 'react-toastify'
 import Header from '../../Components/Header'
 import Footer from '../../Components/Footer'
 import '../App.css'
 
-const CheckoutForm = ({ cartItems, total, onSuccess }) => {
+function CheckoutPage() {
+  const [cartItems, setCartItems] = useState([])
+  const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
@@ -20,70 +21,6 @@ const CheckoutForm = ({ cartItems, total, onSuccess }) => {
     zip: '',
     phoneNumber: ''
   })
-
-  const handleInputChange = (e) => {
-    setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setProcessing(true)
-
-    // Simulate dummy payment process
-    setTimeout(() => {
-      toast.success('Payment processed successfully (Dummy)!')
-      onSuccess('dummy_payment_intent_id_' + Date.now())
-      setProcessing(false)
-    }, 2000) // 2 second delay to simulate processing
-  }
-
-  return (
-    <form onSubmit={handleSubmit}  >
-      <div className="row">
-        <div className="col-md-6">
-          <h5>Shipping Information</h5>
-          <div className="mb-3">
-            <input type="text" name="name" placeholder="Full Name" className="form-control" onChange={handleInputChange} required />
-          </div>
-          <div className="mb-3">
-            <input type="email" name="email" placeholder="Email" className="form-control" onChange={handleInputChange} required />
-          </div>
-           <div className="mb-3">
-            <input type="text" name="phoneNumber" placeholder="Phone Number" className="form-control" onChange={handleInputChange} required />
-          </div>
-          <div className="mb-3">
-            <input type="text" name="address" placeholder="Address" className="form-control" onChange={handleInputChange} required />
-          </div>
-          <div className="mb-3">
-            <input type="text" name="city" placeholder="City" className="form-control" onChange={handleInputChange} required />
-          </div>
-          <div className="mb-3">
-            <input type="text" name="zip" placeholder="ZIP Code" className="form-control" onChange={handleInputChange} required />
-          </div>
-        </div>
-        <div className="col-md-6">
-          <h5>Payment Information (Dummy)</h5>
-          <div className="mb-3">
-            <input type="text" placeholder="Card Number" className="form-control" />
-          </div>
-          <div className="mb-3">
-            <input type="text" placeholder="Expiry Date (MM/YY)" className="form-control" />
-          </div>
-          <div className="mb-3">
-            <input type="text" placeholder="CVV" className="form-control" />
-          </div>
-          <button type="submit" className="btn btn-success w-100" disabled={processing}>
-            {processing ? 'Processing...' : `Pay ₹${total}`}
-          </button>
-        </div>
-      </div>
-    </form>
-  )
-}
-
-function CheckoutPage() {
-  const [cartItems, setCartItems] = useState([])
-  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -101,7 +38,6 @@ function CheckoutPage() {
         const quantity = searchParams.get('quantity')
 
         if (productId && quantity) {
-          // Buy now flow - single product
           const allProducts = await getCollectionData('products')
           const product = allProducts.find(p => p.id === productId)
           if (product) {
@@ -116,7 +52,6 @@ function CheckoutPage() {
             return
           }
         } else {
-          // Full cart checkout
           const userDoc = await getDocumentData('users', userData.uid)
           const cart = userDoc?.carts || []
           const allProducts = await getCollectionData('products')
@@ -153,14 +88,71 @@ function CheckoutPage() {
     return cartItems.reduce((total, item) => total + (item.product?.price || 0) * item.quantity, 0)
   }
 
-  const handlePaymentSuccess = async (paymentIntentId) => {
+  const handleInputChange = (e) => {
+    setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value })
+  }
+
+  const handlePayment = async (e) => {
+    e.preventDefault()
+    setProcessing(true)
+
+    try {
+      const response = await fetch(
+        'https://us-central1-kaaf-3f07d.cloudfunctions.net/createRazorpayOrder',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: getTotalPrice(),
+            currency: 'INR',
+            receipt: 'receipt_' + Date.now(),
+            notes: { ...shippingInfo }
+          })
+        }
+      )
+
+      const data = await response.json()
+
+      if (response.status !== 200) {
+        throw new Error(data.error || 'Failed to create Razorpay order')
+      }
+
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: 'Your Company Name',
+        description: 'Order Payment',
+        order_id: data.orderId,
+        handler: function (res) {
+          handlePaymentSuccess(res.razorpay_payment_id)
+        },
+        prefill: {
+          name: shippingInfo.name,
+          email: shippingInfo.email,
+          contact: shippingInfo.phoneNumber
+        },
+        theme: {
+          color: '#3399cc'
+        }
+      }
+
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+    } catch (err) {
+      console.error('Razorpay error:', err)
+      toast.error(err.message)
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  const handlePaymentSuccess = async (paymentId) => {
     const userData = getUserData()
     try {
-      // Fetch current user data to get existing orders
       const userDoc = await getDocumentData('users', userData.uid)
       const existingOrders = userDoc?.orders || []
 
-      // Create order data
       const orderData = {
         userId: userData.uid,
         items: cartItems.map(item => ({
@@ -171,29 +163,23 @@ function CheckoutPage() {
         })),
         total: getTotalPrice(),
         status: 'paid',
-        paymentIntentId,
+        paymentIntentId: paymentId,
         timestamp: new Date().toISOString()
       }
 
-      // Add order to orders collection and get the order ID
       const orderDocRef = await addDocument('orders', orderData)
       const orderId = orderDocRef.id
-
-      // Update the order document to include its own ID
       await updateDocument('orders', orderId, { id: orderId })
 
-      // Add order ID to user's orders array
       await updateDocument('users', userData.uid, {
         orders: [...existingOrders, orderId]
       })
 
-      // Clear cart only if it's a full cart checkout (not buy now)
       if (!searchParams.get('productId')) {
         await updateDocument('users', userData.uid, { carts: [] })
         window.dispatchEvent(new Event('cartUpdated'))
       }
 
-      // Update orderedQty for each product
       const updatePromises = cartItems.map(item =>
         incrementNumber('products', item.id, 'orderedQty', item.quantity)
       )
@@ -211,11 +197,9 @@ function CheckoutPage() {
     return (
       <div className="App">
         <Header />
-        <div className="container mt-5 pt-5">
-          <div className="text-center">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
+        <div className="container mt-5 pt-5 text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
         </div>
         <Footer />
@@ -229,62 +213,64 @@ function CheckoutPage() {
     <div className="App">
       <Header />
       <div className="container my-5 pt-5">
+        <h1 className="mb-4">Checkout</h1>
         <div className="row">
-          <div className="col-12">
-            <h1 className="mb-4">Checkout</h1>
-
-            <div className="row">
-              <div className="col-lg-8">
-                <div className="card mb-4">
-                  <div className="card-header">
-                    <h5>Product Summary</h5>
+          <div className="col-lg-8">
+            <div className="card mb-4">
+              <div className="card-header"><h5>Product Summary</h5></div>
+              <div className="card-body">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="d-flex justify-content-between mb-2">
+                    <span>{item.product?.name} x{item.quantity}</span>
+                    <span>QTY:{item.quantity}</span>
+                    <span>₹{(item.product?.price || 0) * item.quantity}</span>
                   </div>
-                  <div className="card-body">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="d-flex justify-content-between mb-2">
-                        <span>{item.product?.name} x{item.quantity}</span>
-                           <span>QTY:{item.quantity}</span>
-                        <span>₹{(item.product?.price || 0) * item.quantity}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-header">
-                    <h5>Checkout Details</h5>
-                  </div>
-                  <div className="card-body">
-                    <CheckoutForm cartItems={cartItems} total={total} onSuccess={handlePaymentSuccess} />
-                  </div>
-                </div>
+                ))}
               </div>
+            </div>
 
-              <div className="col-lg-4">
-                <div className="card">
-                  <div className="card-body">
-                    <h5 className="card-title">Payment Summary</h5>
-                    <hr />
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Subtotal:</span>
-                      <span>₹{total}</span>
-                    </div>
-                    <div className="d-flex justify-content-between mb-2">
-                      <span>Tax:</span>
-                      <span>₹0</span>
-                    </div>
-                    <div className="d-flex justify-content-between mb-3">
-                      <strong>Total:</strong>
-                      <strong>₹{total}</strong>
-                    </div>
-                    <Link to="/cart" className="btn btn-outline-primary w-100 mb-2">
-                      Back to Cart
-                    </Link>
-                  </div>
-                </div>
+            <div className="card">
+              <div className="card-header"><h5>Checkout Details</h5></div>
+              <div className="card-body">
+                <form onSubmit={handlePayment}>
+                  <input type="text" name="name" placeholder="Full Name" className="form-control mb-2" onChange={handleInputChange} required />
+                  <input type="email" name="email" placeholder="Email" className="form-control mb-2" onChange={handleInputChange} required />
+                  <input type="text" name="phoneNumber" placeholder="Phone Number" className="form-control mb-2" onChange={handleInputChange} required />
+                  <input type="text" name="address" placeholder="Address" className="form-control mb-2" onChange={handleInputChange} required />
+                  <input type="text" name="city" placeholder="City" className="form-control mb-2" onChange={handleInputChange} required />
+                  <input type="text" name="zip" placeholder="ZIP Code" className="form-control mb-2" onChange={handleInputChange} required />
+                  <button type="submit" className="btn btn-success w-100" disabled={processing}>
+                    {processing ? 'Processing...' : `Pay ₹${total}`}
+                  </button>
+                </form>
               </div>
             </div>
           </div>
+
+          <div className="col-lg-4">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Payment Summary</h5>
+                <hr />
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Subtotal:</span>
+                  <span>₹{total}</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Tax:</span>
+                  <span>₹0</span>
+                </div>
+                <div className="d-flex justify-content-between mb-3">
+                  <strong>Total:</strong>
+                  <strong>₹{total}</strong>
+                </div>
+                <Link to="/cart" className="btn btn-outline-primary w-100 mb-2">
+                  Back to Cart
+                </Link>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <Footer />
