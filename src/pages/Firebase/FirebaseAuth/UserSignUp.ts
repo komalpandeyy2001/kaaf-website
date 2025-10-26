@@ -27,8 +27,6 @@ const userData = {
   displayName: name,
   createdAt: serverTimestamp(), // Firestore timestamp
   updatedAt: serverTimestamp(), // Firestore timestamp
-  emailVerified: false,
-
   isActive: true
 };
     

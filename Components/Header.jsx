@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaHeart } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { LuShoppingCart } from "react-icons/lu";
 import { FiDownload } from "react-icons/fi";
@@ -159,6 +159,9 @@ function Header() {
 
         {/* Header actions */}
         <div className="header-actions">
+          <Link to="/wishlist" className="wishlist-link" aria-label="Wishlist">
+            <FaHeart size={24} className='text-danger'/>
+          </Link>
           <Link to="/cart" className="cart-link">
             <div className="cart-container">
               <LuShoppingCart className="cart-icon" size={24} />

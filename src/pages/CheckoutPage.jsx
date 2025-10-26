@@ -4,6 +4,7 @@ import { getUserData } from '../utils/userData'
 import { getDocumentData, getCollectionData } from './Firebase/CloudFirestore/GetData'
 import { updateDocument } from './Firebase/CloudFirestore/SetData'
 import { addDocument } from './Firebase/CloudFirestore/SetData' // Assuming addDocument exists; if not, use updateDocument or create
+import { incrementNumber } from './Firebase/CloudFirestore/UpdateData'
 import { toast } from 'react-toastify'
 import Header from '../../Components/Header'
 import Footer from '../../Components/Footer'
@@ -16,7 +17,8 @@ const CheckoutForm = ({ cartItems, total, onSuccess }) => {
     email: '',
     address: '',
     city: '',
-    zip: ''
+    zip: '',
+    phoneNumber: ''
   })
 
   const handleInputChange = (e) => {
@@ -36,7 +38,7 @@ const CheckoutForm = ({ cartItems, total, onSuccess }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}  >
       <div className="row">
         <div className="col-md-6">
           <h5>Shipping Information</h5>
@@ -45,6 +47,9 @@ const CheckoutForm = ({ cartItems, total, onSuccess }) => {
           </div>
           <div className="mb-3">
             <input type="email" name="email" placeholder="Email" className="form-control" onChange={handleInputChange} required />
+          </div>
+           <div className="mb-3">
+            <input type="text" name="phoneNumber" placeholder="Phone Number" className="form-control" onChange={handleInputChange} required />
           </div>
           <div className="mb-3">
             <input type="text" name="address" placeholder="Address" className="form-control" onChange={handleInputChange} required />
@@ -171,7 +176,8 @@ function CheckoutPage() {
       }
 
       // Add order to orders collection and get the order ID
-      const orderId = await addDocument('orders', orderData)
+      const orderDocRef = await addDocument('orders', orderData)
+      const orderId = orderDocRef.id
 
       // Update the order document to include its own ID
       await updateDocument('orders', orderId, { id: orderId })
@@ -186,6 +192,12 @@ function CheckoutPage() {
         await updateDocument('users', userData.uid, { carts: [] })
         window.dispatchEvent(new Event('cartUpdated'))
       }
+
+      // Update orderedQty for each product
+      const updatePromises = cartItems.map(item =>
+        incrementNumber('products', item.id, 'orderedQty', item.quantity)
+      )
+      await Promise.all(updatePromises)
 
       toast.success('Order placed successfully!')
       navigate('/orders')
@@ -216,7 +228,7 @@ function CheckoutPage() {
   return (
     <div className="App">
       <Header />
-      <div className="container mt-5 pt-5">
+      <div className="container my-5 pt-5">
         <div className="row">
           <div className="col-12">
             <h1 className="mb-4">Checkout</h1>
@@ -231,6 +243,7 @@ function CheckoutPage() {
                     {cartItems.map((item) => (
                       <div key={item.id} className="d-flex justify-content-between mb-2">
                         <span>{item.product?.name} x{item.quantity}</span>
+                           <span>QTY:{item.quantity}</span>
                         <span>₹{(item.product?.price || 0) * item.quantity}</span>
                       </div>
                     ))}

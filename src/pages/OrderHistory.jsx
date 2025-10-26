@@ -82,7 +82,8 @@ function OrderHistory() {
                         <h6>Items:</h6>
                         {order.items.map((item, index) => (
                           <div key={index} className="d-flex justify-content-between mb-1">
-                            <span>{item.name} x{item.quantity}</span>
+                            <span>{item.name}</span>
+                            <span>Qty: {item.quantity}</span>
                             <span>₹{item.price * item.quantity}</span>
                           </div>
                         ))}

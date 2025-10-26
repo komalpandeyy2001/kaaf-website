@@ -149,87 +149,140 @@ function CartPage() {
               </div>
             ) : (
               <>
-                <div className="row">
-                  <div className="col-lg-8">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="card mb-3">
-                        <div className="card-body">
-                          <div className="row align-items-center mb-3">
-                            <div className="col-md-2">
-                              <img
-                                src={item.product?.image}
-                                alt={item.product?.name}
-                                className="img-fluid rounded"
-                                style={{ maxHeight: '80px', objectFit: 'contain' }}
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <Link to={`/product/${item.id}`} className="text-decoration-none">
-                                <h5 className="card-title text-truncate text-dark">{item.product?.name}</h5>
-                              </Link>
-                              <p className="text-muted mb-0">₹{item.product?.price}</p>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="d-flex align-items-center">
-                                <button
-                                  className="btn btn-outline-secondary btn-sm"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  disabled={item.quantity <= 1}
-                                >
-                                  -
-                                </button>
-                                <span className="mx-3">{item.quantity}</span>
-                                <button
-                                  className="btn btn-outline-secondary btn-sm"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <strong>₹{(item.product?.price || 0) * item.quantity}</strong>
-                            </div>
-                          </div>
-                          <div className="d-flex justify-content-between">
-                            <button
-                              className="btn btn-outline-danger btn-sm"
-                              onClick={() => removeFromCart(item.id)}
-                            >
-                              Remove
-                            </button>
-                            <Link to={`/checkout?productId=${item.id}&quantity=${item.quantity}`} className="btn btn-custom-yellow btn-sm">
-                              Buy this now
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+           <div className="row">
+  {/* Cart Items */}
+  <div className="col-lg-8">
+    {cartItems.length === 0 ? (
+      <div className="text-center py-5">
+        <h4>Your cart is empty 🛒</h4>
+        <Link to="/" className="btn btn-primary mt-3">
+          Continue Shopping
+        </Link>
+      </div>
+    ) : (
+      cartItems.map((item) => (
+        <div key={item.id} className="card mb-3 shadow-sm border-0">
+          <div className="card-body">
+            <div className="row align-items-center">
+              {/* Product Image */}
+              <div className="col-md-2 text-center">
+                <img
+                  src={item.product?.image}
+                  alt={item.product?.name}
+                  className="img-fluid rounded"
+                  style={{ maxHeight: "80px", objectFit: "contain" }}
+                />
+              </div>
 
-                  <div className="col-lg-4">
-                    <div className="card">
-                      <div className="card-body">
-                        <h5 className="card-title">Order Summary</h5>
-                        <hr />
-                        <div className="d-flex justify-content-between mb-2">
-                          <span>Total Items:</span>
-                          <span>{getTotalItems()}</span>
-                        </div>
-                        <div className="d-flex justify-content-between mb-3">
-                          <strong>Total Price:</strong>
-                          <strong>₹{getTotalPrice()}</strong>
-                        </div>
-                        <Link to="/checkout" className="btn btn-success w-100 mb-2">
-                          Proceed to Checkout
-                        </Link>
-                        <Link to="/" className="btn btn-outline-primary w-100">
-                          Continue Shopping
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
+              {/* Product Details */}
+              <div className="col-md-4">
+                <Link
+                  to={`/product/${item.id}`}
+                  className="text-decoration-none"
+                >
+                  <h5 className="card-title text-dark mb-1 text-truncate">
+                    {item.product?.name}
+                  </h5>
+                </Link>
+                <p className="text-muted small mb-0">
+                  Price: <strong>₹{item.product?.price}</strong>
+                </p>
+                   <p className="text-muted small mb-0">
+                  Qty: <strong>{item.quantity}</strong>
+                </p>
+              </div>
+
+              {/* Quantity Controls */}
+              {/* <div className="col-md-3 text-center">
+                <div className="d-inline-flex align-items-center border rounded px-2">
+                  <button
+                    className="btn btn-sm btn-light"
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                  >
+                    −
+                  </button>
+                  <span className="mx-2 fw-bold">{item.quantity}</span>
+                  <button
+                    className="btn btn-sm btn-light"
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    disabled={
+                      item.quantity >=
+                      (item.product.stockQty - item.product.orderedQty)
+                    }
+                  >
+                    +
+                  </button>
                 </div>
+              </div> */}
+
+              {/* Total Price */}
+              <div className="col-md-3 text-end">
+                <h5 className="text-success mb-0">
+                  ₹{(item.product?.price || 0) * item.quantity}
+                </h5>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="d-flex justify-content-between mt-3">
+              <button
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => removeFromCart(item.id)}
+              >
+                Remove
+              </button>
+              {item.product.orderedQty >= item.product.stockQty ? (
+                <span className="text-danger fw-bold">Out of Stock</span>
+              ) : (
+                <Link
+                  to={`/checkout?productId=${item.id}&quantity=${item.quantity}`}
+                  className="btn btn-warning btn-sm"
+                >
+                  Buy this now
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+
+  {/* Order Summary */}
+  <div className="col-lg-4">
+    <div className="card shadow-sm border-0 sticky-top" style={{ top: "100px" }}>
+      <div className="card-body">
+        <h5 className="card-title fw-bold mb-3">Order Summary</h5>
+        <hr />
+        <div className="d-flex justify-content-between mb-2">
+          <span>Total Items:</span>
+          <span>{getTotalItems()}</span>
+        </div>
+        <div className="d-flex justify-content-between mb-3">
+          <strong>Total Price:</strong>
+          <strong>₹{getTotalPrice()}</strong>
+        </div>
+
+        {cartItems.some(
+          (item) => item.product.orderedQty >= item.product.stockQty
+        ) ? (
+          <button className="btn btn-danger w-100 mb-2" disabled>
+            Some items out of stock
+          </button>
+        ) : (
+          <Link to="/checkout" className="btn btn-success w-100 mb-2">
+            Proceed to Checkout
+          </Link>
+        )}
+        <Link to="/" className="btn btn-outline-primary w-100">
+          Continue Shopping
+        </Link>
+      </div>
+    </div>
+  </div>
+</div>
+
               </>
             )}
           </div>

@@ -116,7 +116,7 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = () => {
-    toast.info(`Redirecting to buy ${product.name}`);
+    navigate(`/checkout?productId=${product.id}&quantity=${quantity}`);
   };
 
   const updateQuantity = (newQuantity) => {
@@ -198,12 +198,20 @@ const ProductDetail = () => {
             </div> */}
 
             <div className="d-flex gap-3">
-              <button className="btn btn-warning btn-sm flex-fill text-white" onClick={handleBuyNow}>
-                Buy Now
-              </button>
-              <button className="btn btn-secondary btn-sm flex-fill" onClick={handleAddToCart}>
-              Add to Cart
-              </button>
+              {product.orderedQty >= product.stockQty ? (
+                <button className="btn btn-danger btn-sm flex-fill" disabled>
+                  Out of Stock
+                </button>
+              ) : (
+                <>
+                  <button className="btn btn-warning btn-sm flex-fill text-white" onClick={handleBuyNow}>
+                    Buy Now
+                  </button>
+                  <button className="btn btn-secondary btn-sm flex-fill" onClick={handleAddToCart}>
+                    Add to Cart
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

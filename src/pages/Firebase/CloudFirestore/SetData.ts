@@ -15,7 +15,7 @@ export const addDocument = async (collectionName: string, data: any) => {
       ...data,
       createdAt: new Date(),
       updatedAt: new Date(),
-      createdBy: user.uid
+      // createdBy: user.uid
     };
     const docRef = await addDoc(collection(db, collectionName), enrichedData);
     console.log(`Document added successfully with ID: ${docRef.id}`);

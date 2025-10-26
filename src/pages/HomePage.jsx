@@ -164,8 +164,7 @@ useEffect(() => {
     }
 
     const handleBuyNow = (product) => {
-        toast.info(`Redirecting to buy ${product.name}`)
-        // Here you can navigate to payment page
+        navigate(`/checkout?productId=${product.id}&quantity=1`);
     }
 
     // Pagination logic
@@ -235,18 +234,29 @@ useEffect(() => {
                         </Link>
                         <p className="card-text text-muted mb-2">₹{product.price}</p>
                         <div className="d-flex gap-1 mt-auto">
-                          <button
-                            onClick={() => handleBuyNow(product)}
-                            className="btn btn-warning btn-sm flex-fill text-white"
-                          >
-                            Buy Now
-                          </button>
-                          <button
-                            onClick={() => handleAddToCart(product)}
-                            className="btn btn-secondary btn-sm flex-fill"
-                          >
-                           Add to Cart
-                          </button>
+                          {product.orderedQty >= product.stockQty ? (
+                            <button
+                              className="btn btn-danger btn-sm flex-fill"
+                              disabled
+                            >
+                              Out of Stock
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleBuyNow(product)}
+                                className="btn btn-warning btn-sm flex-fill text-white"
+                              >
+                                Buy Now
+                              </button>
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                className="btn btn-secondary btn-sm flex-fill"
+                              >
+                               Add to Cart
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
           </div>

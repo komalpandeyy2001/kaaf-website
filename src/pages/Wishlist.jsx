@@ -174,20 +174,31 @@ const Wishlist = () => {
                           <h5 className="card-title text-truncate text-dark">{product.name}</h5>
                         </Link>
                         <p className="card-text text-muted mb-2">₹{product.price}</p>
-                        {/* <div className="d-flex gap-1 mt-auto">
-                          <button
-                            onClick={() => handleBuyNow(product)}
-                            className="btn btn-warning btn-sm flex-fill text-white"
-                          >
-                            Buy Now
-                          </button>
-                          <button
-                            onClick={() => handleAddToCart(product)}
-                            className="btn btn-secondary btn-sm flex-fill"
-                          >
-                            Cart
-                          </button>
-                        </div> */}
+                        <div className="d-flex gap-1 mt-auto">
+                          {product.orderedQty >= product.stockQty ? (
+                            <button
+                              className="btn btn-danger btn-sm flex-fill"
+                              disabled
+                            >
+                              Out of Stock
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleBuyNow(product)}
+                                className="btn btn-warning btn-sm flex-fill text-white"
+                              >
+                                Buy Now
+                              </button>
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                className="btn btn-secondary btn-sm flex-fill"
+                              >
+                                Cart
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
