@@ -23,6 +23,10 @@ function HomePage() {
     const [likedProducts, setLikedProducts] = useState(new Set())
     const [currentPage, setCurrentPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
+    const [categories, setCategories] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState('')
+    const [sortDate, setSortDate] = useState('newest')
+    const [sortPrice, setSortPrice] = useState('')
     const itemsPerPage = 4 // Change to 10 when more products are available
     const navigate = useNavigate();
 
@@ -50,6 +54,16 @@ useEffect(() => {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const fetchedCategories = await getCollectionData('productCategory');
+            setCategories(fetchedCategories);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            setCategories([]);
+        }
+    };
+
     const fetchUserLikes = async () => {
         const userData = getUserData();
         if (userData && userData.uid) {
@@ -65,21 +79,54 @@ useEffect(() => {
     };
 
     fetchProducts();
+    fetchCategories();
     fetchUserLikes();
 }, []);
 
 useEffect(() => {
-    if (searchQuery.trim() === '') {
-        setFilteredProducts(products);
-    } else {
-        const filtered = products.filter(product =>
+    let filtered = products;
+
+    // Filter by category
+    if (selectedCategory) {
+        filtered = filtered.filter(product => product.categoryId === selectedCategory);
+    }
+
+    // Filter by search query
+    if (searchQuery.trim() !== '') {
+        filtered = filtered.filter(product =>
             product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (product.category && product.category.toLowerCase().includes(searchQuery.toLowerCase()))
         );
-        setFilteredProducts(filtered);
     }
-    setCurrentPage(1); // Reset to first page when search changes
-}, [searchQuery, products]);
+
+    // Sort filtered products
+    let sorted = [...filtered];
+
+    // First, sort by date (newest by default)
+    if (sortDate === 'newest') {
+        sorted = sorted.sort((a, b) => {
+            const timeA = a.createdAt?.seconds || a.createdAt || 0;
+            const timeB = b.createdAt?.seconds || b.createdAt || 0;
+            return timeB - timeA;
+        });
+    } else if (sortDate === 'oldest') {
+        sorted = sorted.sort((a, b) => {
+            const timeA = a.createdAt?.seconds || a.createdAt || 0;
+            const timeB = b.createdAt?.seconds || b.createdAt || 0;
+            return timeA - timeB;
+        });
+    }
+
+    // Then, sort by price if selected
+    if (sortPrice === 'price-high-low') {
+        sorted = sorted.sort((a, b) => b.price - a.price);
+    } else if (sortPrice === 'price-low-high') {
+        sorted = sorted.sort((a, b) => a.price - b.price);
+    }
+
+    setFilteredProducts(sorted);
+    setCurrentPage(1); // Reset to first page when filters change
+}, [searchQuery, selectedCategory, sortDate, sortPrice, products]);
 
 
     const handleLike = async (productId) => {
@@ -191,9 +238,9 @@ useEffect(() => {
   <div className="px-3 px-md-5">
     <h2 className="text-center mb-4">Our Products</h2>
 
-    {/* Search Bar */}
+    {/* Filters: Category, Date Sort, Price Sort, Search */}
     <div className="row justify-content-center mb-4">
-      <div className="col-md-6">
+            <div className="col-md-6 mb-3 mb-md-0">
         <div className="input-group">
           <input
             type="text"
@@ -205,6 +252,42 @@ useEffect(() => {
 
         </div>
       </div>
+      <div className="col-4 col-md-2 mb-3 mb-md-0">
+        <select
+          className="form-select"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="col-4 col-md-2 mb-3 mb-md-0">
+        <select
+          className="form-select"
+          value={sortDate}
+          onChange={(e) => setSortDate(e.target.value)}
+        >
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+      </div>
+      <div className="col-4 col-md-2 mb-3 mb-md-0">
+        <select
+          className="form-select"
+          value={sortPrice}
+          onChange={(e) => setSortPrice(e.target.value)}
+        >
+          <option value="">Price</option>
+          <option value="price-high-low">High to Low</option>
+          <option value="price-low-high">Low to High</option>
+        </select>
+      </div>
+
     </div>
     <div className="row g-2">
       {currentProducts.map((product) => (

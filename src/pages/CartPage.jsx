@@ -12,6 +12,17 @@ function CartPage() {
   const [cartItems, setCartItems] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [savedAddresses, setSavedAddresses] = useState([])
+  const [selectedAddressId, setSelectedAddressId] = useState('')
+  const [showAddAddressForm, setShowAddAddressForm] = useState(false)
+  const [newAddress, setNewAddress] = useState({
+    name: '',
+    email: '',
+    address: '',
+    city: '',
+    zip: '',
+    phoneNumber: ''
+  })
 
   useEffect(() => {
     const fetchCartAndProducts = async () => {
@@ -23,9 +34,11 @@ function CartPage() {
       }
 
       try {
-        // Fetch user's cart
+        // Fetch user's cart and addresses
         const userDoc = await getDocumentData('users', userData.uid)
         const cart = userDoc?.carts || []
+        const addresses = userDoc?.addresses || []
+        const lastShippingInfo = userDoc?.lastShippingInfo || null
 
         // Fetch all products
         const allProducts = await getCollectionData('products')
@@ -44,6 +57,22 @@ function CartPage() {
 
         setCartItems(cartItemsWithDetails)
         setProducts(allProducts)
+        setSavedAddresses(addresses)
+
+        // Auto-select last used address if it exists
+        if (lastShippingInfo && addresses.length > 0) {
+          const matchingAddress = addresses.find(addr =>
+            addr.name === lastShippingInfo.name &&
+            addr.email === lastShippingInfo.email &&
+            addr.address === lastShippingInfo.address &&
+            addr.city === lastShippingInfo.city &&
+            addr.zip === lastShippingInfo.zip &&
+            addr.phoneNumber === lastShippingInfo.phoneNumber
+          )
+          if (matchingAddress) {
+            setSelectedAddressId(matchingAddress.id)
+          }
+        }
       } catch (error) {
         console.error('Error fetching cart:', error)
         toast.error('Failed to load cart')
@@ -263,6 +292,24 @@ function CartPage() {
           <strong>Total Price:</strong>
           <strong>₹{getTotalPrice()}</strong>
         </div>
+
+        {savedAddresses.length > 0 && selectedAddressId && (
+          <div className="mb-3">
+            <small className="text-muted">Shipping to:</small>
+            <div className="border rounded p-2 bg-light">
+              {(() => {
+                const selectedAddr = savedAddresses.find(addr => addr.id === selectedAddressId)
+                return selectedAddr ? (
+                  <div>
+                    <strong>{selectedAddr.name}</strong><br />
+                    {selectedAddr.address}, {selectedAddr.city}, {selectedAddr.zip}<br />
+                    {selectedAddr.phoneNumber}
+                  </div>
+                ) : null
+              })()}
+            </div>
+          </div>
+        )}
 
         {cartItems.some(
           (item) => item.product.orderedQty >= item.product.stockQty

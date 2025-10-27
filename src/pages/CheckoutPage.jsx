@@ -21,11 +21,23 @@ function CheckoutPage() {
     zip: '',
     phoneNumber: ''
   })
+  const [paymentMethod, setPaymentMethod] = useState('razorpay')
+  const [savedAddresses, setSavedAddresses] = useState([])
+  const [selectedAddressId, setSelectedAddressId] = useState('')
+  const [showAddAddressForm, setShowAddAddressForm] = useState(false)
+  const [newAddress, setNewAddress] = useState({
+    name: '',
+    email: '',
+    address: '',
+    city: '',
+    zip: '',
+    phoneNumber: ''
+  })
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchCartAndAddresses = async () => {
       const userData = getUserData()
       if (!userData || !userData.uid) {
         toast.error('Please log in to checkout')
@@ -46,6 +58,36 @@ function CheckoutPage() {
               quantity: parseInt(quantity),
               product: product
             }])
+
+            // Fetch addresses and lastShippingInfo for direct checkout
+            const userDoc = await getDocumentData('users', userData.uid)
+            const addresses = userDoc?.addresses || []
+            const lastShippingInfo = userDoc?.lastShippingInfo || null
+            setSavedAddresses(addresses)
+
+            if (addresses.length > 0) {
+              // Auto-select matching saved address if it exists
+              if (lastShippingInfo) {
+                const matchingAddress = addresses.find(addr =>
+                  addr.name === lastShippingInfo.name &&
+                  addr.email === lastShippingInfo.email &&
+                  addr.address === lastShippingInfo.address &&
+                  addr.city === lastShippingInfo.city &&
+                  addr.zip === lastShippingInfo.zip &&
+                  addr.phoneNumber === lastShippingInfo.phoneNumber
+                )
+                if (matchingAddress) {
+                  setSelectedAddressId(matchingAddress.id)
+                  setShippingInfo(matchingAddress)
+                }
+              }
+            } else {
+              // No saved addresses, show add form with lastShippingInfo if available
+              setShowAddAddressForm(true)
+              if (lastShippingInfo) {
+                setNewAddress(lastShippingInfo)
+              }
+            }
           } else {
             toast.error('Product not found')
             navigate('/cart')
@@ -54,6 +96,8 @@ function CheckoutPage() {
         } else {
           const userDoc = await getDocumentData('users', userData.uid)
           const cart = userDoc?.carts || []
+          const addresses = userDoc?.addresses || []
+          const lastShippingInfo = userDoc?.lastShippingInfo || null
           const allProducts = await getCollectionData('products')
           const productMap = allProducts.reduce((map, product) => {
             map[product.id] = product
@@ -72,6 +116,31 @@ function CheckoutPage() {
           }
 
           setCartItems(cartItemsWithDetails)
+          setSavedAddresses(addresses)
+
+          if (addresses.length > 0) {
+            // Auto-select last used address if it exists
+            if (lastShippingInfo) {
+              const matchingAddress = addresses.find(addr =>
+                addr.name === lastShippingInfo.name &&
+                addr.email === lastShippingInfo.email &&
+                addr.address === lastShippingInfo.address &&
+                addr.city === lastShippingInfo.city &&
+                addr.zip === lastShippingInfo.zip &&
+                addr.phoneNumber === lastShippingInfo.phoneNumber
+              )
+              if (matchingAddress) {
+                setSelectedAddressId(matchingAddress.id)
+                setShippingInfo(matchingAddress)
+              }
+            }
+          } else {
+            // No saved addresses, show add form
+            setShowAddAddressForm(true)
+            if (lastShippingInfo) {
+              setNewAddress(lastShippingInfo)
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching cart:', error)
@@ -81,20 +150,118 @@ function CheckoutPage() {
       }
     }
 
-    fetchCart()
+    fetchCartAndAddresses()
   }, [navigate, searchParams])
 
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => total + (item.product?.price || 0) * item.quantity, 0)
   }
 
+  const isShippingInfoComplete = () => {
+    return shippingInfo.name.trim() &&
+           shippingInfo.email.trim() &&
+           shippingInfo.address.trim() &&
+           shippingInfo.city.trim() &&
+           shippingInfo.zip.trim() &&
+           shippingInfo.phoneNumber.trim()
+  }
+
   const handleInputChange = (e) => {
     setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value })
+  }
+
+  const handleNewAddressChange = (e) => {
+    setNewAddress({ ...newAddress, [e.target.name]: e.target.value })
+  }
+
+  const handleSelectAddress = (addressId) => {
+    setSelectedAddressId(addressId)
+    if (addressId) {
+      const selectedAddress = savedAddresses.find(addr => addr.id === addressId)
+      if (selectedAddress) {
+        setShippingInfo(selectedAddress)
+      }
+    } else {
+      setShippingInfo({
+        name: '',
+        email: '',
+        address: '',
+        city: '',
+        zip: '',
+        phoneNumber: ''
+      })
+    }
+  }
+
+  const handleAddAddress = async () => {
+    const userData = getUserData()
+    if (!userData || !userData.uid) {
+      toast.error('Please log in to add address')
+      return
+    }
+
+    try {
+      const newAddressWithId = {
+        ...newAddress,
+        id: Date.now().toString()
+      }
+      const updatedAddresses = [...savedAddresses, newAddressWithId]
+      await updateDocument('users', userData.uid, { addresses: updatedAddresses })
+      setSavedAddresses(updatedAddresses)
+      setNewAddress({
+        name: '',
+        email: '',
+        address: '',
+        city: '',
+        zip: '',
+        phoneNumber: ''
+      })
+      setShowAddAddressForm(false)
+      toast.success('Address added successfully')
+    } catch (error) {
+      console.error('Error adding address:', error)
+      toast.error('Failed to add address')
+    }
+  }
+
+  const handleDeleteAddress = async (addressId) => {
+    const userData = getUserData()
+    if (!userData || !userData.uid) {
+      toast.error('Please log in to delete address')
+      return
+    }
+
+    try {
+      const updatedAddresses = savedAddresses.filter(addr => addr.id !== addressId)
+      await updateDocument('users', userData.uid, { addresses: updatedAddresses })
+      setSavedAddresses(updatedAddresses)
+      if (selectedAddressId === addressId) {
+        setSelectedAddressId('')
+        setShippingInfo({
+          name: '',
+          email: '',
+          address: '',
+          city: '',
+          zip: '',
+          phoneNumber: ''
+        })
+      }
+      toast.success('Address deleted successfully')
+    } catch (error) {
+      console.error('Error deleting address:', error)
+      toast.error('Failed to delete address')
+    }
   }
 
   const handlePayment = async (e) => {
     e.preventDefault()
     setProcessing(true)
+
+    if (paymentMethod === 'cod') {
+      await handlePaymentSuccess(null)
+      setProcessing(false)
+      return
+    }
 
     try {
       const response = await fetch(
@@ -162,8 +329,10 @@ function CheckoutPage() {
           quantity: item.quantity
         })),
         total: getTotalPrice(),
-        status: 'paid',
+        status: paymentMethod === 'cod' ? 'pending' : 'paid',
         paymentIntentId: paymentId,
+        paymentMethod: paymentMethod,
+        shippingInfo: shippingInfo,
         timestamp: new Date().toISOString()
       }
 
@@ -172,7 +341,8 @@ function CheckoutPage() {
       await updateDocument('orders', orderId, { id: orderId })
 
       await updateDocument('users', userData.uid, {
-        orders: [...existingOrders, orderId]
+        orders: [...existingOrders, orderId],
+        lastShippingInfo: shippingInfo
       })
 
       if (!searchParams.get('productId')) {
@@ -230,17 +400,138 @@ function CheckoutPage() {
             </div>
 
             <div className="card">
-              <div className="card-header"><h5>Checkout Details</h5></div>
+              <div className="card-header"><h5>Shipping Address</h5></div>
               <div className="card-body">
+                {savedAddresses.length > 0 && (
+                  <div className="mb-3">
+                    <label className="form-label">Select Saved Address</label>
+                    <div className="mb-2">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="addressSelection"
+                          id="newAddress"
+                          value=""
+                          checked={selectedAddressId === ''}
+                          onChange={() => handleSelectAddress('')}
+                        />
+                        <label className="form-check-label" htmlFor="newAddress">
+                          Enter New Address
+                        </label>
+                      </div>
+                      {savedAddresses.map((addr) => (
+                        <div key={addr.id} className="form-check d-flex align-items-start">
+                          <input
+                            className="form-check-input mt-1"
+                            type="radio"
+                            name="addressSelection"
+                            id={`address-${addr.id}`}
+                            value={addr.id}
+                            checked={selectedAddressId === addr.id}
+                            onChange={() => handleSelectAddress(addr.id)}
+                          />
+                          <label className="form-check-label ms-2" htmlFor={`address-${addr.id}`}>
+                            <div>
+                              <strong>{addr.name}</strong><br />
+                              {addr.address}, {addr.city}, {addr.zip}<br />
+                              {addr.phoneNumber} | {addr.email}
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger ms-2"
+                                onClick={() => handleDeleteAddress(addr.id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+
+
+                  </div>
+                )}
+
+                {!showAddAddressForm && (
+                  <div className="mb-3">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => setShowAddAddressForm(true)}
+                    >
+                      + Add New Address
+                    </button>
+                  </div>
+                )}
+
+                {showAddAddressForm && (
+                  <div className="mb-3 border p-3 rounded">
+                    <h6>Add New Address</h6>
+                    <input type="text" name="name" placeholder="Full Name" className="form-control mb-2" onChange={handleNewAddressChange} value={newAddress.name} required />
+                    <input type="email" name="email" placeholder="Email" className="form-control mb-2" onChange={handleNewAddressChange} value={newAddress.email} required />
+                    <input type="text" name="phoneNumber" placeholder="Phone Number" className="form-control mb-2" onChange={handleNewAddressChange} value={newAddress.phoneNumber} required />
+                    <input type="text" name="address" placeholder="Address" className="form-control mb-2" onChange={handleNewAddressChange} value={newAddress.address} required />
+                    <input type="text" name="city" placeholder="City" className="form-control mb-2" onChange={handleNewAddressChange} value={newAddress.city} required />
+                    <input type="text" name="zip" placeholder="ZIP Code" className="form-control mb-2" onChange={handleNewAddressChange} value={newAddress.zip} required />
+                    <div className="d-flex gap-2">
+                      <button type="button" className="btn btn-success btn-sm" onClick={handleAddAddress}>Save Address</button>
+                      <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowAddAddressForm(false)}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+
+                {selectedAddressId && (
+                  <div className="mb-3 p-3 border border-primary rounded bg-light">
+                    <h6 className="text-primary mb-2">Selected Shipping Address</h6>
+                    {(() => {
+                      const selectedAddr = savedAddresses.find(addr => addr.id === selectedAddressId)
+                      return selectedAddr ? (
+                        <div>
+                          <strong>{selectedAddr.name}</strong><br />
+                          {selectedAddr.address}, {selectedAddr.city}, {selectedAddr.zip}<br />
+                          {selectedAddr.phoneNumber} | {selectedAddr.email}
+                        </div>
+                      ) : null
+                    })()}
+                  </div>
+                )}
+
                 <form onSubmit={handlePayment}>
-                  <input type="text" name="name" placeholder="Full Name" className="form-control mb-2" onChange={handleInputChange} required />
-                  <input type="email" name="email" placeholder="Email" className="form-control mb-2" onChange={handleInputChange} required />
-                  <input type="text" name="phoneNumber" placeholder="Phone Number" className="form-control mb-2" onChange={handleInputChange} required />
-                  <input type="text" name="address" placeholder="Address" className="form-control mb-2" onChange={handleInputChange} required />
-                  <input type="text" name="city" placeholder="City" className="form-control mb-2" onChange={handleInputChange} required />
-                  <input type="text" name="zip" placeholder="ZIP Code" className="form-control mb-2" onChange={handleInputChange} required />
-                  <button type="submit" className="btn btn-success w-100" disabled={processing}>
-                    {processing ? 'Processing...' : `Pay ₹${total}`}
+                  <div className="mb-3">
+                    <label className="form-label">Payment Method</label>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="paymentMethod"
+                        id="razorpay"
+                        value="razorpay"
+                        checked={paymentMethod === 'razorpay'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <label className="form-check-label" htmlFor="razorpay">
+                        Online Payment (Razorpay)
+                      </label>
+                    </div>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="paymentMethod"
+                        id="cod"
+                        value="cod"
+                        checked={paymentMethod === 'cod'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                      />
+                      <label className="form-check-label" htmlFor="cod">
+                        Cash on Delivery (COD)
+                      </label>
+                    </div>
+                  </div>
+
+                  <button type="submit" className="btn btn-success w-100" disabled={processing || !isShippingInfoComplete()}>
+                    {processing ? 'Processing...' : paymentMethod === 'cod' ? `Place Order ₹${total}` : `Pay ₹${total}`}
                   </button>
                 </form>
               </div>
