@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { emailPasswordSignUp } from "./Firebase/FirebaseAuth/UserSignUp";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { signInWithGoogle } from "./Firebase/FirebaseAuth/GoogleAuth";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
@@ -12,6 +13,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -44,6 +46,22 @@ const SignUp = () => {
       setLoading(false);
     }
   };
+
+    // ---- Google Login ----
+    const handleGoogleLogin = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        await signInWithGoogle();
+        window.dispatchEvent(new Event("authStateChanged"));
+        navigate("/"); // redirect to home
+      } catch (err) {
+        console.error(err);
+        setError("Google sign-in failed. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div className="auth-container">
@@ -124,6 +142,26 @@ const SignUp = () => {
 
           <button type="submit" disabled={loading} className="auth-button">
             {loading ? "Creating Account..." : "Create Account"}
+          </button>
+
+
+           {/* Divider */}
+          <div className="divider text-center my-3">OR</div>
+
+          {/* Google Sign In */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="auth-button w-100 btn d-flex align-items-center justify-content-center gap-2"
+           style={{ backgroundColor: "#ffffffff", color: "#000000ff", border: "1px solid #dcdcdcff" }}
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              style={{ width: "20px", height: "20px" }}
+            />
+            Continue with Google
           </button>
         </form>
 
