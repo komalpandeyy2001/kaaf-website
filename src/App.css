@@ -120,6 +120,7 @@ body {
 
   color: var(--dark-gray);
   background-color: var(--white);
+  overflow-x: hidden;
 }
 
 .App {}
@@ -973,6 +974,188 @@ body {
   display: block;
 }
 
+footer {
+  /* position: fixed; */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #111;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* ================================
+   HERO + OFFER + CATEGORY IMAGES
+   ================================ */
+.hero-img,
+.offer-img,
+.category-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background-color: #f8f8f8;
+  border-radius: 14px;
+}
+
+
+/* HERO BANNER */
+.hero-banner img {
+  width: 100%;
+  border-radius: 16px;
+  background: #f5f5f5;
+}
+
+
+/* OFFER BANNER */
+.offer-img {
+  margin-top: 10px;
+  border-radius: 16px;
+}
+
+@media (min-width: 768px) {
+  .offer-img {
+    height: auto;
+  }
+
+
+
+}
+
+
+/* ================================
+   INFO BAR
+   ================================ */
+.info-bar {
+  background: #fff7d6;
+  border: 1px solid #ffe9a5;
+  border-radius: 12px;
+}
+
+.info-bar i {
+  color: #f4a100;
+  display: block;
+  margin-bottom: 4px;
+}
+
+
+/* ================================
+   CATEGORY CARD (Enhanced UI)
+   ================================ */
+/* CATEGORY CARD STYLE */
+.category-card {
+  position: relative;
+  max-width: 220px;     
+  max-height: 220px;
+  border-radius: 16px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #f2f2f2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Image */
+.category-card .category-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 🔥 BLACKISH OVERLAY */
+.category-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35); /* Adjust 0.35 → darker/lighter */
+  pointer-events: none;
+  transition: background 0.2s ease;
+}
+
+/* Darken more on hover */
+.category-card:hover::after {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Floating Label */
+.category-label {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 6px 18px;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+  text-align: center;
+  z-index: 2;
+}
+
+
+.sub-banner {
+  padding-top: 20px;
+}
+.brands-section {
+  background-color: #ffe5cc; /* Light peach background */
+  overflow: hidden;
+}
+
+.brands-wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.brands-track {
+  display: flex;
+  width: max-content;
+  animation: scrollBrands 20s linear infinite;
+}
+
+.brand-logo {
+  flex: 0 0 auto;
+  width: 120px;
+  height: 120px;
+  margin: 0 20px;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.brand-logo img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
+@keyframes scrollBrands {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+text-capitalize::first-letter {
+  text-transform: uppercase;
+}
+
+.main-content-wrapper{
+  padding: 60px 0;
+}
+
+
 @media (max-width: 992px) {
   .sports-image {
     height: 150px !important;
@@ -987,6 +1170,17 @@ body {
   .main-coach-card-text {
     padding: 10px !important;
   }
+
+    .main-content-wrapper{
+  padding: 80px 0;
+}
+h1{
+  font-size: 20px;
+}
+
+h5{
+  font-size: 14px;
+}
 }
 
 @media (max-width: 576px) {
@@ -1003,13 +1197,4 @@ body {
   }
 }
 
-footer {
-  /* position: fixed; */
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #111;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-}
+

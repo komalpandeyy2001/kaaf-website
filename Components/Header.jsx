@@ -148,7 +148,7 @@ function Header() {
         <div className="logo">
           <Link to="/">
             <img
-              src="/kaaflogo.png"
+              src="/logo.png"
               alt="Kaaf Logo"
               className="nav-logo"
             />
@@ -188,7 +188,7 @@ function Header() {
             </Link>
           )}
 
-          <button className="btn-custom-yellow" title="Download App">
+          <button className="btn-custom-yellow d-none d-md-block" title="Download App">
             <RiMobileDownloadLine size={20} />
           </button>
         </div>

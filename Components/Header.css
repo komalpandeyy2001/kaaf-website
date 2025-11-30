@@ -121,7 +121,7 @@
 
 .cart-count {
   position: absolute;
-  top: -8px;
+  top: -3px;
   right: -8px;
   background-color: #dc3545;
   color: white;
@@ -257,7 +257,7 @@
   }
 
   .header-actions {
-    flex-direction: row;
+    flex-direction: row !important;
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
@@ -284,6 +284,13 @@
   .cart-icon {
     margin-left: 0.5rem;
   }
+
+  
+
+.header {
+    background: white;
+    padding: 0.1rem 0;
+}
 }
 
 @media (max-width: 400px) {

@@ -148,13 +148,15 @@ function CartPage() {
     return (
       <div className="App">
         <Header />
-        <div className="container mt-5 pt-5">
+  <div className="main-content-wrapper">
+          <div className="container  pt-3">
           <div className="text-center">
             <div className="spinner-border" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
           </div>
         </div>
+</div>
         <Footer />
       </div>
     )
@@ -163,7 +165,8 @@ function CartPage() {
   return (
     <div className="App">
       <Header />
-      <div className="container mt-5 pt-5">
+    <div className="main-content-wrapper">
+        <div className="container  pt-3">
         <div className="row">
           <div className="col-12">
             <h1 className="mb-4">Shopping Cart</h1>
@@ -209,7 +212,7 @@ function CartPage() {
                   to={`/product/${item.id}`}
                   className="text-decoration-none"
                 >
-                  <h5 className="card-title text-dark mb-1 text-truncate">
+                  <h5 className="card-title text-dark mb-1 text-truncate mt-3">
                     {item.product?.name}
                   </h5>
                 </Link>
@@ -335,6 +338,7 @@ function CartPage() {
           </div>
         </div>
       </div>
+    </div>
       <Footer />
     </div>
   )

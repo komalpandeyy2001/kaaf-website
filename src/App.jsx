@@ -16,6 +16,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import OrderHistory from './pages/OrderHistory'
 import Wishlist from './pages/Wishlist'
 import ProductDetail from './pages/ProductDetail'
+import CategoryProducts from './pages/CategoryProducts'
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/category/:id" element={<CategoryProducts />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/orders" element={<OrderHistory />} />
