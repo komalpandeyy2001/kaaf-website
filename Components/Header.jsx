@@ -183,7 +183,7 @@ function Header() {
 
           ) : (
             /* Login Button - When not logged in */
-            <Link to="/login" className="btn-custom-yellow login-button">
+            <Link to="/login" className="btn-custom-yellow login-button d-none d-md-block">
               Login
             </Link>
           )}
