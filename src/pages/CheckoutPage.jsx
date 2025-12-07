@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import Header from '../../Components/Header'
 import Footer from '../../Components/Footer'
 import '../App.css'
+import { sendInvoiceEmail } from '../utils/invoiceUtils'
 
 function CheckoutPage() {
   const [cartItems, setCartItems] = useState([])
@@ -62,7 +63,7 @@ function CheckoutPage() {
             // Fetch addresses and lastShippingInfo for direct checkout
             const userDoc = await getDocumentData('users', userData.uid)
             const addresses = userDoc?.addresses || []
-            const lastShippingInfo = userDoc?.lastShippingInfo || null
+            const lastShippingInfo = userDoc?.lastShippingInfo || ""
             setSavedAddresses(addresses)
 
             if (addresses.length > 0) {
@@ -97,7 +98,7 @@ function CheckoutPage() {
           const userDoc = await getDocumentData('users', userData.uid)
           const cart = userDoc?.carts || []
           const addresses = userDoc?.addresses || []
-          const lastShippingInfo = userDoc?.lastShippingInfo || null
+          const lastShippingInfo = userDoc?.lastShippingInfo || ""
           const allProducts = await getCollectionData('products')
           const productMap = allProducts.reduce((map, product) => {
             map[product.id] = product
@@ -159,11 +160,11 @@ function CheckoutPage() {
 
   const isShippingInfoComplete = () => {
     return shippingInfo.name.trim() &&
-           shippingInfo.email.trim() &&
-           shippingInfo.address.trim() &&
-           shippingInfo.city.trim() &&
-           shippingInfo.zip.trim() &&
-           shippingInfo.phoneNumber.trim()
+      shippingInfo.email.trim() &&
+      shippingInfo.address.trim() &&
+      shippingInfo.city.trim() &&
+      shippingInfo.zip.trim() &&
+      shippingInfo.phoneNumber.trim()
   }
 
   const handleInputChange = (e) => {
@@ -320,48 +321,72 @@ function CheckoutPage() {
       const userDoc = await getDocumentData('users', userData.uid)
       const existingOrders = userDoc?.orders || []
 
-      const orderData = {
-        userId: userData.uid,
-        items: cartItems.map(item => ({
-          id: item.id,
+      const orderIds = []
+
+      // Loop through each cart item and create a separate order + payment document
+      for (const item of cartItems) {
+        const orderData = {
+          userId: userData.uid,
+          itemId: item.id,
           name: item.product.name,
           price: item.product.price,
-          quantity: item.quantity
-        })),
-        total: getTotalPrice(),
-        status: paymentMethod === 'cod' ? 'pending' : 'paid',
-        paymentIntentId: paymentId,
-        paymentMethod: paymentMethod,
-        shippingInfo: shippingInfo,
-        timestamp: new Date().toISOString()
+          quantity: item.quantity,
+          vendorId: item.product.vendorId,
+          total: item.product.price * item.quantity,
+          status: paymentMethod === 'cod' ? 'pending' : 'paid',
+          paymentId: paymentId || "",
+          paymentMethod: paymentMethod,
+          shippingInfo: shippingInfo,
+          timestamp: new Date().toISOString()
+        }
+
+        // Create separate order document
+        const orderDocRef = await addDocument('orders', orderData)
+        const orderId = orderDocRef.id
+        await updateDocument('orders', orderId, { id: orderId })
+        orderIds.push(orderId)
+
+        // Create separate payment document for each product
+        const paymentData = {
+          userId: userData.uid,
+          vendorId: item.product.vendorId,
+          orderId: orderId,
+          paymentMethod: paymentMethod,
+          status: paymentMethod === 'cod' ? 'pending' : 'paid',
+          paymentId: paymentId || "",
+          amount: item.product.price * item.quantity,
+          timestamp: new Date().toISOString()
+        }
+        await addDocument('payments', paymentData)
+
+        // Increment product ordered quantities
+        await incrementNumber('products', item.id, 'orderedQty', item.quantity)
+
+        // Send invoice email for each product order
+        await sendInvoiceEmail({
+          ...orderData,
+          id: orderId,
+          items: [{ name: item.product.name, quantity: item.quantity, price: item.product.price }]
+        });
       }
 
-      const orderDocRef = await addDocument('orders', orderData)
-      const orderId = orderDocRef.id
-      await updateDocument('orders', orderId, { id: orderId })
-
+      // Update user's orders and last shipping info
       await updateDocument('users', userData.uid, {
-        orders: [...existingOrders, orderId],
-        lastShippingInfo: shippingInfo
+        orders: [...existingOrders, ...orderIds],
+        lastShippingInfo: shippingInfo,
+        carts: [] // clear cart
       })
+      window.dispatchEvent(new Event('cartUpdated'))
 
-      if (!searchParams.get('productId')) {
-        await updateDocument('users', userData.uid, { carts: [] })
-        window.dispatchEvent(new Event('cartUpdated'))
-      }
-
-      const updatePromises = cartItems.map(item =>
-        incrementNumber('products', item.id, 'orderedQty', item.quantity)
-      )
-      await Promise.all(updatePromises)
-
-      toast.success('Order placed successfully!')
+      toast.success('Orders placed successfully!')
       navigate('/orders')
     } catch (error) {
-      console.error('Error creating order:', error)
-      toast.error('Failed to create order')
+      console.error('Error creating orders:', error)
+      toast.error('Failed to create orders')
     }
   }
+
+
 
   if (loading) {
     return (

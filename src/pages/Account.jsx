@@ -9,15 +9,16 @@ const Account = () => {
   };
 
   return (
-    <div className="container-fluid py-5 bg-light">
-         <div className="mt-5"></div>
+  
+      <div className="main-content-wrapper">
+       
       <div className="justify-content-center">
         <div className="">
-          <div className="card shadow">
-            <div className="card-header bg-yellow text-center">
+          <div className="card border-0 ">
+            <div className="card-header bg-yellow text-center py-3">
               <h2 className="mb-0 text-dark">My Account</h2>
             </div>
-            <div className="card-body">
+            <div className="card-body px-0">
               <div className="list-group list-group-flush">
                 <Link to="/orders" className="list-group-item list-group-item-action d-flex align-items-center">
                   <FaShoppingCart className="me-3 text-primary" />
@@ -35,7 +36,7 @@ const Account = () => {
                   <FaFileAlt className="me-3 text-info" />
                   Terms and Policy
                 </Link>
-                <button onClick={handleLogout} className="list-group-item list-group-item-action d-flex align-items-center text-danger">
+                <button onClick={handleLogout} className="bg-light list-group-item list-group-item-action d-flex align-items-center text-danger">
                   <FaSignOutAlt className="me-3" />
                   Logout
                 </button>

@@ -137,7 +137,9 @@ const Wishlist = () => {
   return (
     <div className="App">
       <Header />
-      <div className="container mt-5 pt-5">
+    
+      <div className="main-content-wrapper px-4">
+          <div className='p-4'>
         <div className="row">
           <div className="col-12">
             <h1 className="mb-4">My Wishlist</h1>
@@ -146,7 +148,7 @@ const Wishlist = () => {
               <div className="text-center py-5">
                 <h3>Your wishlist is empty</h3>
                 <p className="text-muted">Add some products to your wishlist!</p>
-                <Link to="/retail-store" className="btn btn-primary">
+                <Link to="/retail-store" className ="btn btn-warning btn-sm flex-fill text-white">
                   Browse Products
                 </Link>
               </div>
@@ -206,6 +208,7 @@ const Wishlist = () => {
               </div>
             )}
           </div>
+        </div>
         </div>
       </div>
       <Footer />

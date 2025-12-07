@@ -51,8 +51,9 @@ function Footer() {
   return (
     <>
       {/* ================= DESKTOP FOOTER (≥768px) ================= */}
-      <footer className="bg-dark text-white py-2 d-none d-md-block ">
-        <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <footer className=" d-none d-md-block ">
+<div className="bg-dark text-white py-2">
+          <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
           {/* Logo */}
           <div className="mb-2 mb-md-0 logo">
             <img src="/logo.png" alt="Qaaf logo" />
@@ -81,6 +82,7 @@ function Footer() {
         <div className="text-center mt-1 fs-6" style={{ fontSize: "0.75rem" }}>
           &copy; {new Date().getFullYear()} Qaaf | All Rights Reserved
         </div>
+</div>
       </footer>
 
       {/* ================= MOBILE BOTTOM NAVIGATION (≤767px) ================= */}

@@ -50,7 +50,7 @@ const Login = () => {
   };
 
   return (
-   <div className= "main-content-wrapper">
+   <div className= "">
      <div className="auth-container">
       <div className="auth-form">
         <div className="auth-header text-center mb-4">
@@ -90,10 +90,10 @@ const Login = () => {
               />
               <button
                 type="button"
-                className="password-toggle position-absolute end-0 top-0 mt-2 me-2 bg-transparent border-0"
+                className="password-toggle position-absolute  bg-transparent border-0"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? "🙈" : "👁️"}
+            <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
               </button>
             </div>
           </div>
@@ -106,6 +106,13 @@ const Login = () => {
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
+
+          {/* Forgot Password Link */}
+            <div className="text-end mb-3">
+              <Link to="/forgot-password" className="text-primary" style={{ fontSize: "14px" }}>
+                Forgot Password?
+              </Link>
+            </div>
 
           {/* Divider */}
           <div className="divider text-center my-3">OR</div>

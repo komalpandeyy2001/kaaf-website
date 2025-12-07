@@ -9,35 +9,49 @@ import { toast } from "react-toastify";
 import { getUserData } from "../utils/userData";
 
 function CategoryProducts() {
-  const { id } = useParams();
+
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [likedProducts, setLikedProducts] = useState(new Set());
   const navigate = useNavigate();
+const { categoryId, subCat } = useParams();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Fetch category
-      const catData = await getDocumentData("productCategory", id);
-      setCategory(catData);
+useEffect(() => {
+  const fetchData = async () => {
+    // 1. Fetch category
+    const catData = await getDocumentData("productCategory", categoryId);
+    setCategory(catData);
 
-      // Fetch all products and filter by category
-      const productList = await getCollectionData("products");
-      const filtered = productList.filter((p) => p.categoryId === id);
-      setProducts(filtered);
+    // 2. Fetch all products
+    const productList = await getCollectionData("products");
 
-      // Fetch liked products
-      const userData = getUserData();
-      if (userData && userData.uid) {
-        const userDoc = await getDocumentData("users", userData.uid);
-        if (userDoc && userDoc.likedProducts) {
-          setLikedProducts(new Set(userDoc.likedProducts));
-        }
+    // 3. Filter products by category + subcategory (supports array)
+    const filtered = productList.filter((p) => {
+      const matchCategory = p.categoryId === categoryId;
+
+      const matchSubCategory = Array.isArray(p.subCategory)
+        ? p.subCategory.includes(subCat)     // FIX for array
+        : p.subCategory === subCat;          // fallback if string
+
+      return matchCategory && matchSubCategory && p.isActive === true;
+    });
+
+    setProducts(filtered);
+
+    // 4. Fetch liked products of user
+    const userData = getUserData();
+    if (userData?.uid) {
+      const userDoc = await getDocumentData("users", userData.uid);
+      if (userDoc?.likedProducts) {
+        setLikedProducts(new Set(userDoc.likedProducts));
       }
-    };
+    }
+  };
 
-    fetchData();
-  }, [id]);
+  fetchData();
+}, [categoryId, subCat]);
+
+
 
   const handleLike = async (productId) => {
     const userData = getUserData();
@@ -109,65 +123,98 @@ function CategoryProducts() {
 
 
 
-      <div className="container py-4 my-5">
-        <h3 className="mb-3 text-capitalize">
-          {category?.name} Products ({products.length})
-        </h3>
+      <div className="main-content-wrapper">
+<div className="p-4 text-center">
 
-        <div className="row g-3">
-          {products.map((product) => (
-            <div key={product.id} className="col-6 col-md-3">
-              <div className="card h-100 shadow-sm">
-                <div className="position-relative">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="card-img-top"
-                    style={{ height: "170px", objectFit: "contain", backgroundColor: "#f8f9fa" }}
-                  />
+          <h3 className="mb-3 text-capitalize">
+          {category?.name}  ({products.length})
+        </h3>
+           <Link
+        to={`/`}
+         className="btn btn-outline-primary mb-3"
+      >
+        ← Back to Categories
+      </Link>
+
+  <div className="row g-3 justify-content-center">
+
+  {/* If NO PRODUCTS found */}
+  {products.length === 0 && (
+    <div className="text-center my-5">
+           
+
+      <h5 className="text-muted">No Products Found in this Subcategory</h5>
+
+
+    </div>
+  )}
+
+  {/* If products found */}
+  {products.length > 0 &&
+    products.map((product) => (
+      <div key={product.id} className="col-6 col-md-3">
+        <div className="card h-100 shadow-sm">
+          <div className="position-relative">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="card-img-top"
+              style={{
+                height: "170px",
+                objectFit: "contain",
+                backgroundColor: "#f8f9fa",
+              }}
+            />
+            <button
+              onClick={() => handleLike(product.id)}
+              className="btn btn-light position-absolute top-0 end-0 m-1 p-1 rounded-circle shadow-sm"
+            >
+              {likedProducts.has(product.id) ? (
+                <FaHeart className="text-danger" size={16} />
+              ) : (
+                <FaRegHeart className="text-secondary" size={16} />
+              )}
+            </button>
+          </div>
+
+          <div className="card-body d-flex flex-column">
+            <Link to={`/product/${product.id}`} className="text-decoration-none">
+              <h6 className="text-dark text-truncate text-capitalize">
+                {product.name}
+              </h6>
+            </Link>
+
+            <p className="text-muted mb-2">₹{product.price}</p>
+
+            <div className="d-flex gap-1 mt-auto">
+              {product.orderedQty >= product.stockQty ? (
+                <button className="btn btn-danger btn-sm flex-fill" disabled>
+                  Out of Stock
+                </button>
+              ) : (
+                <>
                   <button
-                    onClick={() => handleLike(product.id)}
-                    className="btn btn-light position-absolute top-0 end-0 m-1 p-1 rounded-circle shadow-sm"
+                    onClick={() => handleBuyNow(product)}
+                    className="btn btn-warning btn-sm flex-fill text-white"
                   >
-                    {likedProducts.has(product.id) ? (
-                      <FaHeart className="text-danger" size={16} />
-                    ) : (
-                      <FaRegHeart className="text-secondary" size={16} />
-                    )}
+                    Buy Now
                   </button>
-                </div>
-                <div className="card-body d-flex flex-column ">
-                  <Link to={`/product/${product.id}`} className="text-decoration-none">
-                    <h6 className="text-dark text-truncate text-capitalize">{product.name}</h6>
-                  </Link>
-                  <p className="text-muted mb-2">₹{product.price}</p>
-                  <div className="d-flex gap-1 mt-auto">
-                    {product.orderedQty >= product.stockQty ? (
-                      <button className="btn btn-danger btn-sm flex-fill" disabled>
-                        Out of Stock
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => handleBuyNow(product)}
-                          className="btn btn-warning btn-sm flex-fill text-white"
-                        >
-                          Buy Now
-                        </button>
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          className="btn btn-secondary btn-sm flex-fill"
-                        >
-                          Add to Cart
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="btn btn-secondary btn-sm flex-fill"
+                  >
+                    Add to Cart
+                  </button>
+                </>
+              )}
             </div>
-          ))}
+          </div>
         </div>
+      </div>
+    ))}
+</div>
+
+</div>
       </div>
 
       <Footer />

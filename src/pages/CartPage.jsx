@@ -166,7 +166,7 @@ function CartPage() {
     <div className="App">
       <Header />
     <div className="main-content-wrapper">
-        <div className="container  pt-3">
+         <div className='p-4'>
         <div className="row">
           <div className="col-12">
             <h1 className="mb-4">Shopping Cart</h1>

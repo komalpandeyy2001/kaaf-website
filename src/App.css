@@ -111,7 +111,14 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
+  min-height: 100vh; /* ensures full screen height */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -125,7 +132,7 @@ body {
 
 .App {}
 
-.footer {}
+
 
 @media (max-width: 1024px) {
   h3 {
@@ -355,17 +362,8 @@ body {
   z-index: 1;
 }
 
-/* Footer */
-.footer {
-  background: #000000;
-  color: white;
-  text-align: center;
-  padding: 2rem 0;
-}
 
-.footer p {
-  margin: 0.5rem 0;
-}
+
 
 /* Animations */
 @keyframes fadeInUp {
@@ -385,8 +383,8 @@ body {
   background-color: #F9C300;
   color: white;
   border: none;
-  padding: 0.50rem 1rem;
-  font-size: 1rem;
+  padding: 0.4rem 0.5rem;
+  /* font-size: 1rem; */
   font-weight: 600;
   border-radius: 10px;
   cursor: pointer;
@@ -394,6 +392,7 @@ body {
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  line-height: 1px;
 }
 
 .session-button {
@@ -974,16 +973,6 @@ body {
   display: block;
 }
 
-footer {
-  /* position: fixed; */
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #111;
-  color: white;
-  text-align: center;
-  padding: 1rem;
-}
 
 /* ================================
    HERO + OFFER + CATEGORY IMAGES
@@ -995,14 +984,14 @@ footer {
   height: auto;
   object-fit: contain;
   background-color: #f8f8f8;
-  border-radius: 14px;
+  /* border-radius: 14px; */
 }
 
 
 /* HERO BANNER */
 .hero-banner img {
   width: 100%;
-  border-radius: 16px;
+  /* border-radius: 16px; */
   background: #f5f5f5;
 }
 
@@ -1029,7 +1018,7 @@ footer {
 .info-bar {
   background: #fff7d6;
   border: 1px solid #ffe9a5;
-  border-radius: 12px;
+  /* border-radius: 12px; */
 }
 
 .info-bar i {
@@ -1153,7 +1142,39 @@ text-capitalize::first-letter {
 
 .main-content-wrapper{
   padding: 60px 0;
+  min-height: 90vh;
+  
 }
+
+/* Subcategory Card Layout */
+.subcat-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px 10px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subcat-card:hover {
+  background: #ffffff;
+  border-color: #007bff;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.subcat-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
 
 
 @media (max-width: 992px) {
@@ -1172,7 +1193,8 @@ text-capitalize::first-letter {
   }
 
     .main-content-wrapper{
-  padding: 65px 0;
+  padding: 50px 0;
+          max-height: 100dvh;
 }
 h1{
   font-size: 20px;
@@ -1181,6 +1203,22 @@ h1{
 h5{
   font-size: 14px;
 }
+.category-label {
+   
+    padding: 6px 14px;
+    font-size: 12px;
+
+}
+.info-bar p{
+  font-size: 12px;
+}
+
+.brand-logo {
+
+    width: 80px;
+    height: 80px;
+    margin: 0 10px;
+}
 }
 
 @media (max-width: 576px) {
@@ -1188,6 +1226,15 @@ h5{
     height: 100px !important;
     border-radius: 6px 8px 8px 6px !important;
   }
+  .container {
+
+    padding: 0 1rem;
+}
+h2{
+  font-size: 16px;
+}
+  
+
 }
 
 @media (max-width: 480px) {

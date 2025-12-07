@@ -189,7 +189,7 @@ function Header() {
           )}
 
           <button className="btn-custom-yellow d-none d-md-block" title="Download App">
-            <RiMobileDownloadLine size={20} />
+            <RiMobileDownloadLine size={16} />
           </button>
         </div>
       </nav>
