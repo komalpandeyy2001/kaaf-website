@@ -97,12 +97,12 @@ function Footer() {
             <div style={{ fontSize: "0.7rem" }}>Home</div>
           </Link>
 
-          <Link to="/categories" className="text-yellow text-decoration-none">
+          <Link to="/orders" className="text-yellow text-decoration-none">
             <i className="bi bi-grid-fill fs-5"></i>
-            <div style={{ fontSize: "0.7rem" }}>Categories</div>
+            <div style={{ fontSize: "0.7rem" }}>Orders</div>
           </Link>
 
-          <Link to="/cart" className="text-yellow text-decoration-none position-relative">
+          {/* <Link to="/cart" className="text-yellow text-decoration-none position-relative">
             <i className="bi bi-cart-fill fs-5"></i>
             {cartCount > 0 && (
               <span className="cart-count">
@@ -110,7 +110,8 @@ function Footer() {
               </span>
             )}
             <div style={{ fontSize: "0.7rem" }}>Cart</div>
-          </Link>
+          </Link> */}
+          
 
           {user ? (
             <Link to="/account" className="text-yellow text-decoration-none">

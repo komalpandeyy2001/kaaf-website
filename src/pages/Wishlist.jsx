@@ -138,7 +138,7 @@ const Wishlist = () => {
     <div className="App">
       <Header />
     
-      <div className="main-content-wrapper px-4">
+      <div className="main-content-wrapper ">
           <div className='p-4'>
         <div className="row">
           <div className="col-12">

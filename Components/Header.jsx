@@ -162,8 +162,8 @@ function Header() {
           <Link to="/wishlist" className="wishlist-link" aria-label="Wishlist">
             <FaHeart size={24} className='text-danger'/>
           </Link>
-          <Link to="/cart" className="cart-link">
-            <div className="cart-container">
+          <Link to="/cart" className="cart-link ">
+            <div className="cart-container me-2">
               <LuShoppingCart className="cart-icon" size={24} />
               {cartCount > 0 && (
                 <span className="cart-count">{cartCount}</span>
@@ -174,7 +174,7 @@ function Header() {
 
           {user ? (
             /* Profile Button - When logged in */
-            <Link to="/account" className="profile-button" aria-label="Account">
+            <Link to="/account" className="profile-button d-none d-md-block" aria-label="Account">
               {/* <span className="username-display">
                 {user.displayName || user.name || user.email || 'User'}
               </span> */}
@@ -183,12 +183,12 @@ function Header() {
 
           ) : (
             /* Login Button - When not logged in */
-            <Link to="/login" className="btn-custom-yellow login-button d-none d-md-block">
+            <Link to="/login" className="btn btn-warning text-white  d-none d-md-block">
               Login
             </Link>
           )}
 
-          <button className="btn-custom-yellow d-none d-md-block" title="Download App">
+          <button className="btn btn-warning text-white d-none d-md-block" title="Download App">
             <RiMobileDownloadLine size={16} />
           </button>
         </div>

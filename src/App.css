@@ -1130,7 +1130,7 @@ body {
     transform: translateX(-50%);
   }
 }
-text-capitalize::first-letter {
+.text-capitalize::first-letter {
   text-transform: uppercase;
 }
 
@@ -1228,7 +1228,7 @@ text-capitalize::first-letter {
 
     .main-content-wrapper{
   padding: 50px 0;
-          max-height: 100dvh;
+          /* max-height: 100dvh; */
 }
 
 
@@ -1274,6 +1274,10 @@ p{
 }
 h2{
   font-size: 16px;
+}
+.auth-form {
+    background: white;
+    padding: 20px;
 }
   
 

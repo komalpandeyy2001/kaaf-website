@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaUser, FaShoppingCart, FaHeart, FaFileAlt, FaSignOutAlt } from 'react-icons/fa';
+import Footer from '../../Components/Footer';
 
 const Account = () => {
   const handleLogout = () => {
@@ -9,6 +10,7 @@ const Account = () => {
   };
 
   return (
+<>
   
       <div className="main-content-wrapper">
        
@@ -46,6 +48,8 @@ const Account = () => {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 

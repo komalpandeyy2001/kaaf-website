@@ -66,8 +66,8 @@ const SignUp = () => {
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <h2>Create Account</h2>
-        <p>Join Kaaf today</p>
+        <h2 className="text-center">Create Account</h2>
+        <p className="text-center text-warning fw-bold">Join Qaaf today</p>
 
         <form onSubmit={handleSignUp}>
           <div className="form-group">
