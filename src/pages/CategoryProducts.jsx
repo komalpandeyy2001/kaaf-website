@@ -13,46 +13,51 @@ function CategoryProducts() {
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [likedProducts, setLikedProducts] = useState(new Set());
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
-const { categoryId, subCat } = useParams();
+  const { categoryId, subCat } = useParams();
 
-useEffect(() => {
-  const fetchData = async () => {
-    // 1. Fetch category
-    const catData = await getDocumentData("productCategory", categoryId);
-    setCategory(catData);
+  // ===================== FETCH DATA =====================
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
 
-    // 2. Fetch all products
-    const productList = await getCollectionData("products");
+      // 1. Fetch category
+      const catData = await getDocumentData("productCategory", categoryId);
+      setCategory(catData);
 
-    // 3. Filter products by category + subcategory (supports array)
-    const filtered = productList.filter((p) => {
-      const matchCategory = p.categoryId === categoryId;
+      // 2. Fetch products
+      const productList = await getCollectionData("products");
 
-      const matchSubCategory = Array.isArray(p.subCategory)
-        ? p.subCategory.includes(subCat)     // FIX for array
-        : p.subCategory === subCat;          // fallback if string
+      const filtered = productList.filter((p) => {
+        const matchCategory = p.categoryId === categoryId;
 
-      return matchCategory && matchSubCategory && p.isActive === true;
-    });
+        const matchSubCategory = Array.isArray(p.subCategory)
+          ? p.subCategory.includes(subCat)
+          : p.subCategory === subCat;
 
-    setProducts(filtered);
+        return matchCategory && matchSubCategory && p.isActive === true;
+      });
 
-    // 4. Fetch liked products of user
-    const userData = getUserData();
-    if (userData?.uid) {
-      const userDoc = await getDocumentData("users", userData.uid);
-      if (userDoc?.likedProducts) {
-        setLikedProducts(new Set(userDoc.likedProducts));
+      setProducts(filtered);
+
+      // 3. Fetch liked items for user
+      const userData = getUserData();
+      if (userData?.uid) {
+        const userDoc = await getDocumentData("users", userData.uid);
+        if (userDoc?.likedProducts) {
+          setLikedProducts(new Set(userDoc.likedProducts));
+        }
       }
-    }
-  };
 
-  fetchData();
-}, [categoryId, subCat]);
+      setLoading(false);
+    };
 
+    fetchData();
+  }, [categoryId, subCat]);
 
-
+  // ===================== LIKE HANDLER =====================
   const handleLike = async (productId) => {
     const userData = getUserData();
     if (!userData || !userData.uid) {
@@ -83,6 +88,7 @@ useEffect(() => {
     }
   };
 
+  // ===================== ADD TO CART =====================
   const handleAddToCart = async (product) => {
     const userData = getUserData();
     if (!userData || !userData.uid) {
@@ -113,6 +119,7 @@ useEffect(() => {
     }
   };
 
+  // ===================== BUY NOW =====================
   const handleBuyNow = (product) => {
     navigate(`/checkout?productId=${product.id}&quantity=1`);
   };
@@ -121,100 +128,113 @@ useEffect(() => {
     <>
       <Header />
 
-
-
       <div className="main-content-wrapper">
-<div className="p-4 text-center">
+        <div className="p-4 text-center">
 
-          <h3 className="mb-3 text-capitalize">
-          {category?.name}  ({products.length})
-        </h3>
-           <Link
-        to={`/`}
-         className="btn btn-outline-primary mb-3"
-      >
-        ← Back to Categories
-      </Link>
+          {/* ==================== HEADING ==================== */}
+          <h3 className="mb-2 text-capitalize">
+            {category?.name}
+            {!loading && ` (${products.length})`}
+          </h3>
 
-  <div className="row g-3 justify-content-center">
+          {/* ==================== BACK BUTTON ==================== */}
+          <Link
+            to={`/`}
+            className="btn btn-warning btn-sm flex-fill text-white mb-4"
 
-  {/* If NO PRODUCTS found */}
-  {products.length === 0 && (
-    <div className="text-center my-5">
-           
+          >
+            ← Back to Categories
+          </Link>
 
-      <h5 className="text-muted">No Products Found in this Subcategory</h5>
-
-
-    </div>
-  )}
-
-  {/* If products found */}
-  {products.length > 0 &&
-    products.map((product) => (
-      <div key={product.id} className="col-6 col-md-3">
-        <div className="card h-100 shadow-sm">
-          <div className="position-relative">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="card-img-top"
-              style={{
-                height: "170px",
-                objectFit: "contain",
-                backgroundColor: "#f8f9fa",
-              }}
-            />
-            <button
-              onClick={() => handleLike(product.id)}
-              className="btn btn-light position-absolute top-0 end-0 m-1 p-1 rounded-circle shadow-sm"
-            >
-              {likedProducts.has(product.id) ? (
-                <FaHeart className="text-danger" size={16} />
-              ) : (
-                <FaRegHeart className="text-secondary" size={16} />
-              )}
-            </button>
-          </div>
-
-          <div className="card-body d-flex flex-column">
-            <Link to={`/product/${product.id}`} className="text-decoration-none">
-              <h6 className="text-dark text-truncate text-capitalize">
-                {product.name}
-              </h6>
-            </Link>
-
-            <p className="text-muted mb-2">₹{product.price}</p>
-
-            <div className="d-flex gap-1 mt-auto">
-              {product.orderedQty >= product.stockQty ? (
-                <button className="btn btn-danger btn-sm flex-fill" disabled>
-                  Out of Stock
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={() => handleBuyNow(product)}
-                    className="btn btn-warning btn-sm flex-fill text-white"
-                  >
-                    Buy Now
-                  </button>
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="btn btn-secondary btn-sm flex-fill"
-                  >
-                    Add to Cart
-                  </button>
-                </>
-              )}
+          {/* ==================== LOADING SKELETON ==================== */}
+          {loading && (
+            <div className="text-center py-4">
+              <div className="spinner-border text-warning"></div>
+              <p className="mt-2 text-muted">Loading categories...</p>
             </div>
-          </div>
-        </div>
-      </div>
-    ))}
-</div>
+          )}
 
-</div>
+          {/* ==================== SHOW PRODUCTS ==================== */}
+          {!loading && (
+            <div className="row g-3 justify-content-center">
+
+              {/* If NO products */}
+              {products.length === 0 && (
+                <div className="text-center my-5">
+                  <h4 className="text-muted fw-bold">No Products Found</h4>
+                  <p className="text-muted">Try browsing other categories.</p>
+                </div>
+              )}
+
+              {/* If products found */}
+              {products.length > 0 &&
+                products.map((product) => (
+                  <div key={product.id} className="col-6 col-lg-3">
+                    <div className="card h-100 shadow-sm">
+                      <div className="position-relative">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="card-img-top"
+                          style={{
+                            height: "170px",
+                            objectFit: "cover",
+                            backgroundColor: "#f8f9fa",
+                          }}
+                        />
+
+                        {/* Like Button */}
+                        <button
+                          onClick={() => handleLike(product.id)}
+                          className="btn btn-light position-absolute top-0 end-0 m-2 py-1 px-2 rounded-circle shadow-sm"
+                        >
+                          {likedProducts.has(product.id) ? (
+                            <FaHeart className="text-danger" size={16} />
+                          ) : (
+                            <FaRegHeart className="text-secondary" size={16} />
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="card-body d-flex flex-column">
+                        <Link to={`/product/${product.id}`} className="text-decoration-none">
+                          <h6 className="text-dark text-truncate text-capitalize">
+                            {product.name}
+                          </h6>
+                        </Link>
+
+                        <p className="text-muted mb-2">₹{product.price}</p>
+
+                        <div className="d-flex gap-1 mt-auto">
+                          {product.orderedQty >= product.stockQty ? (
+                            <button className="btn btn-danger btn-sm flex-fill" disabled>
+                              Out of Stock
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleBuyNow(product)}
+                                className="btn btn-warning btn-sm flex-fill text-white"
+                              >
+                                Buy Now
+                              </button>
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                className="btn btn-secondary btn-sm flex-fill"
+                              >
+                                Add to Cart
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+        </div>
       </div>
 
       <Footer />

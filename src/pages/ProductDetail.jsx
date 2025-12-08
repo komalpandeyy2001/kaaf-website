@@ -142,7 +142,7 @@ const ProductDetail = () => {
       <Header />
       <div className="container py-5 mt-5">
         {/* === TOP SECTION === */}
-        <div className="row align-items-center shadow-lg rounded-4 overflow-hidden bg-white p-4">
+        <div className="row align-items-center border rounded-4 overflow-hidden bg-white p-4">
           {/* Left Image */}
           <div className="col-sm-4 mb-4 mb-sm-0">
             <div className="position-relative border rounded-4 overflow-hidden">
@@ -153,19 +153,19 @@ const ProductDetail = () => {
                 style={{
                   maxHeight: '300px',
                   width: '100%',
-                  objectFit: 'contain',
+                  objectFit: "cover",
                   backgroundColor: '#fafafa',
                 }}
               />
               <button
                 onClick={handleLike}
-                className="btn btn-light position-absolute top-0 end-0 m-3 p-2 rounded-circle shadow-sm"
+                className="btn btn-light position-absolute top-0 end-0 m-2 py-1 px-2 rounded-circle shadow-sm"
                 style={{ backdropFilter: 'blur(8px)' }}
               >
                 {likedProducts.has(product.id) ? (
-                  <FaHeart className="text-danger" size={22} />
+                  <FaHeart className="text-danger" size={16} />
                 ) : (
-                  <FaRegHeart className="text-dark" size={22} />
+                  <FaRegHeart className="text-dark" size={16} />
                 )}
               </button>
             </div>
@@ -233,51 +233,33 @@ const ProductDetail = () => {
 
   {descriptionOpen && (
     <div className="p-3 border-top bg-light small">
-      {Array.isArray(product.description) ? (
-        product.description.map((item, index) => (
-          <div key={index} className="mb-3">
-            {item.heading && (
-              <h6 className="fw-semibold mb-1 text-dark">{item.heading}</h6>
-            )}
-            {item.description && (
-              <p className="mb-0 text-muted">{item.description}</p>
-            )}
-          </div>
-        ))
-      ) : (
-        <p>{product.description || "No description available."}</p>
-      )}
+      <p className="mb-0 text-muted">
+        {product.description || "No description available."}
+      </p>
     </div>
   )}
 </div>
 
+
           {/* Features Accordion */}
-          <div className="border rounded-3 mb-3">
-            <button
-              className="btn w-100 text-start d-flex align-items-center justify-content-between"
-              onClick={() => setFeaturesOpen(!featuresOpen)}
-            >
-              <span><strong>⭐ Features</strong></span>
-              <span>{featuresOpen ? '−' : '+'}</span>
-            </button>
-            {featuresOpen && (
-              <div className="p-3 border-top bg-light small">
-                {product.features ? (
-                  Array.isArray(product.features) ? (
-                    <ul className="ps-3">
-                      {product.features.map((f, i) => (
-                        <li key={i} className="mb-1">{f}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>{product.features}</p>
-                  )
-                ) : (
-                  <p>No features listed.</p>
-                )}
-              </div>
-            )}
-          </div>
+     <div className="border rounded-3 mb-3">
+  <button
+    className="btn w-100 text-start d-flex align-items-center justify-content-between"
+    onClick={() => setFeaturesOpen(!featuresOpen)}
+  >
+    <span><strong>⭐ Features</strong></span>
+    <span>{featuresOpen ? '−' : '+'}</span>
+  </button>
+
+  {featuresOpen && (
+    <div className="p-3 border-top bg-light small">
+      <p className="mb-0 text-muted">
+        {product.features || "No features listed."}
+      </p>
+    </div>
+  )}
+</div>
+
         </div>
       </div>
       <Footer />

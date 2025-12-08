@@ -1,8 +1,10 @@
-# TODO: Setup EmailJS for Automated Invoices
+# TODO: Implement Return Functionality in OrderHistory.jsx
 
-## Tasks
-- [x] Create `src/utils/invoiceUtils.js` for PDF generation and email sending
-- [x] Update `CheckoutPage.jsx` to send invoice email after order placement
-- [x] Update `OrderHistory.jsx` to add "Download Invoice" button for each order
-- [ ] Test email sending and PDF generation
-- [ ] Ensure EmailJS is configured with service ID, template ID, and public key
+- [x] Import necessary Firebase functions for updating data and uploading images
+- [x] Add state variables for modal: showModal, selectedOrder, reason, imageFile, uploading
+- [x] Add logic to show return button for delivered orders within 7 days
+- [x] Create return modal component with reason select, image upload, and submit button
+- [x] Implement handleReturnClick to open modal
+- [x] Implement handleSubmitReturn to upload image and update order status
+- [x] Add error handling and user feedback with toasts
+- [x] Test the return functionality

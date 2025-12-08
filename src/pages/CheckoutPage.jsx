@@ -326,9 +326,12 @@ function CheckoutPage() {
       // Loop through each cart item and create a separate order + payment document
       for (const item of cartItems) {
         const orderData = {
+          deliveryStatus:"Order Placed",
+              createdAt: new Date(),
           userId: userData.uid,
           itemId: item.id,
           name: item.product.name,
+          image: item.product.image,
           price: item.product.price,
           quantity: item.quantity,
           vendorId: item.product.vendorId,
@@ -337,7 +340,7 @@ function CheckoutPage() {
           paymentId: paymentId || "",
           paymentMethod: paymentMethod,
           shippingInfo: shippingInfo,
-          timestamp: new Date().toISOString()
+          // timestamp: new Date().toISOString()
         }
 
         // Create separate order document
@@ -348,6 +351,7 @@ function CheckoutPage() {
 
         // Create separate payment document for each product
         const paymentData = {
+              createdAt: new Date(),
           userId: userData.uid,
           vendorId: item.product.vendorId,
           orderId: orderId,
@@ -355,7 +359,7 @@ function CheckoutPage() {
           status: paymentMethod === 'cod' ? 'pending' : 'paid',
           paymentId: paymentId || "",
           amount: item.product.price * item.quantity,
-          timestamp: new Date().toISOString()
+          // timestamp: new Date().toISOString()
         }
         await addDocument('payments', paymentData)
 
