@@ -230,6 +230,24 @@ function HomePage() {
             </div>
           </div>
         </div>
+               {/* ==================== BRAND LOGO SCROLLER ==================== */}
+        <section className="brands-section my-4 py-4">
+          <h3 className="text-center mb-3">Original Brands</h3>
+          <div className="brands-wrapper">
+            <div className="brands-track">
+              {["amazon.png", "lg.png", "mi.png", "samsung.png", "havells.png", "bajaj.png", "vivo.png"].map((url, index) => (
+                <div key={index} className="brand-logo">
+                  <img src={url} alt={`Brand ${index + 1}`} />
+                </div>
+              ))}
+              {["amazon.png", "lg.png", "mi.png", "samsung.png", "havells.png", "bajaj.png", "vivo.png"].map((url, index) => (
+                <div key={"dup-" + index} className="brand-logo">
+                  <img src={url} alt={`Brand ${index + 1}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
         </>
 
 )}
@@ -361,28 +379,7 @@ function HomePage() {
             </div>
           )}
         </section>
-{!activeSubCategory && (
-<>
-          {/* ==================== BRAND LOGO SCROLLER ==================== */}
-        <section className="brands-section my-4 py-4">
-          <h3 className="text-center mb-3">Original Brands</h3>
-          <div className="brands-wrapper">
-            <div className="brands-track">
-              {["amazon.png", "lg.png", "mi.png", "samsung.png", "havells.png", "bajaj.png", "vivo.png"].map((url, index) => (
-                <div key={index} className="brand-logo">
-                  <img src={url} alt={`Brand ${index + 1}`} />
-                </div>
-              ))}
-              {["amazon.png", "lg.png", "mi.png", "samsung.png", "havells.png", "bajaj.png", "vivo.png"].map((url, index) => (
-                <div key={"dup-" + index} className="brand-logo">
-                  <img src={url} alt={`Brand ${index + 1}`} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-        </>
-)}
+
       </div>
 
       <Footer />
