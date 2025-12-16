@@ -64,6 +64,7 @@ function Footer() {
             <span className="me-2">📧 qaaf@gmail.com</span> | 
             <span className="mx-2">📞 +91 12345 67890</span>
           </div>
+          <div><a href="/terms" className="text-decoration-none text-white">Terms and Policy</a></div>
 
           {/* Social Icons */}
           <div className="d-flex gap-2 fs-5">
