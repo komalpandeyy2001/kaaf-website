@@ -83,7 +83,7 @@ function Footer() {
         
 
         <div className="text-center mt-1 fs-6" style={{ fontSize: "0.75rem" }}>
-          &copy; {new Date().getFullYear()} Qaaf | All Rights Reserved | <span> <Link to="/terms" >
+          &copy; {new Date().getFullYear()} Qaaf | All Rights Reserved | <span> <Link to="/terms" className="text-white">
           Terms & Policy
           </Link></span>
         </div>
